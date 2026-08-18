@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1c1310">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="肥尾守宮飼育紀錄：餵食、排便、體重與成長曲線">
+<title>肥尾日誌 · 守宮飼育紀錄</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --night:#1c1310;
+    --night-2:#241913;
+    --card:#2b1e17;
+    --umber:#4a2e1e;
+    --umber-2:#6b442c;
+    --sand:#e8d5a9;
+    --clay:#c98b3a;
+    --clay-dim:#8f6228;
+    --moss:#8ba05e;
+    --bone:#f2ebdc;
+    --mute:#a89279;
+    --danger:#c05a45;
+    --serif:"Noto Serif TC","Songti TC","PMingLiU","Source Han Serif TC",serif;
+    --sans:"PingFang TC","Noto Sans TC","Microsoft JhengHei","Hiragino Sans",system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--night);
+    background-image:radial-gradient(120% 80% at 50% -10%, #33231a 0%, var(--night) 60%);
+    color:var(--bone);
+    font-family:var(--sans);
+    font-size:15px;
+    line-height:1.6;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 80px}
+
+  /* ---------- header ---------- */
+  header.top{border-bottom:1px solid var(--umber);padding-bottom:18px;margin-bottom:24px}
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--clay-dim);margin:0 0 6px
+  }
+  h1.title{
+    font-family:var(--serif);font-weight:600;font-size:30px;line-height:1.2;
+    letter-spacing:.14em;margin:0;color:var(--sand)
+  }
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+
+  /* ---------- buttons ---------- */
+  button{font-family:inherit;font-size:14px;cursor:pointer;border-radius:2px;transition:background .15s,border-color .15s,color .15s}
+  button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--clay);outline-offset:2px}
+  .btn{background:transparent;border:1px solid var(--umber-2);color:var(--sand);padding:8px 14px}
+  .btn:hover{border-color:var(--clay);color:var(--clay)}
+  .btn-solid{background:var(--clay);border:1px solid var(--clay);color:#231609;font-weight:600;padding:10px 20px}
+  .btn-solid:hover{background:var(--sand);border-color:var(--sand)}
+  .btn-ghost{background:none;border:none;color:var(--mute);padding:4px 8px;font-size:13px}
+  .btn-ghost:hover{color:var(--clay)}
+  .btn-danger:hover{color:var(--danger)}
+
+  /* ---------- gecko chips ---------- */
+  .roster{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:26px}
+  .chip{
+    background:var(--night-2);border:1px solid var(--umber);color:var(--mute);
+    padding:8px 16px;border-radius:999px;font-size:14px;display:flex;align-items:center;gap:8px
+  }
+  .chip:hover{border-color:var(--umber-2);color:var(--sand)}
+  .chip[aria-pressed="true"]{background:var(--sand);border-color:var(--sand);color:#2b1e17;font-weight:600}
+  .chip .dot{width:6px;height:6px;border-radius:50%;background:var(--clay)}
+  .chip[aria-pressed="true"] .dot{background:var(--umber)}
+  .chip-add{border-style:dashed;color:var(--clay-dim)}
+
+  /* ---------- layout ---------- */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .panel{background:var(--card);border:1px solid var(--umber);border-radius:3px;padding:20px}
+  h2.sec{
+    font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--clay-dim);margin:0 0 16px;font-weight:500
+  }
+  .field{margin-bottom:14px}
+  label.lb{display:block;font-size:12px;letter-spacing:.08em;color:var(--mute);margin-bottom:6px}
+  input[type=text],input[type=date],input[type=number],select,textarea{
+    width:100%;background:var(--night);border:1px solid var(--umber);color:var(--bone);
+    padding:9px 11px;border-radius:2px;font-family:var(--sans);font-size:15px
+  }
+  input[type=number],input[type=date]{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  textarea{resize:vertical;min-height:56px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  /* stepper */
+  .stepper{display:flex;align-items:stretch;border:1px solid var(--umber);border-radius:2px;overflow:hidden}
+  .stepper button{width:46px;background:var(--night);border:none;color:var(--clay);font-size:20px;line-height:1}
+  .stepper button:hover{background:var(--umber)}
+  .stepper input{border:none;text-align:center;font-family:var(--mono);font-size:20px;background:var(--night-2)}
+  .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+  /* toggle */
+  .toggle{display:flex;gap:8px}
+  .toggle button{flex:1;background:var(--night);border:1px solid var(--umber);color:var(--mute);padding:9px}
+  .toggle button[aria-pressed="true"]{background:var(--umber);border-color:var(--moss);color:var(--bone)}
+  .toggle button.no[aria-pressed="true"]{border-color:var(--umber-2);color:var(--mute)}
+
+  /* ---------- date picker ---------- */
+  .dp{position:relative}
+  .dp-btn{
+    width:100%;background:var(--night);border:1px solid var(--umber);color:var(--bone);
+    padding:9px 11px;border-radius:2px;font-family:var(--mono);font-size:15px;
+    display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left
+  }
+  .dp-btn:hover{border-color:var(--clay)}
+  .dp-btn.empty{color:var(--mute)}
+  .dp-btn .cal{color:var(--clay-dim);font-size:12px}
+  .dp-pop{
+    position:absolute;z-index:40;top:calc(100% + 6px);left:0;width:272px;max-width:88vw;
+    background:var(--card);border:1px solid var(--umber-2);border-radius:3px;padding:12px;
+    box-shadow:0 14px 34px rgba(0,0,0,.55)
+  }
+  .dp-pop[hidden]{display:none}
+  .dp-head{display:flex;align-items:center;justify-content:space-between;gap:2px;margin-bottom:8px}
+  .dp-head b{font-family:var(--mono);font-size:13px;color:var(--sand);letter-spacing:.06em;flex:1;text-align:center}
+  .dp-nav{background:none;border:1px solid transparent;color:var(--clay);width:26px;height:26px;font-size:13px;border-radius:2px;padding:0}
+  .dp-nav:hover{border-color:var(--umber-2);background:var(--night)}
+  .dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+  .dp-grid span{font-family:var(--mono);font-size:10px;color:var(--clay-dim);text-align:center;padding:3px 0}
+  .dp-grid button{
+    height:32px;background:none;border:1px solid transparent;color:var(--bone);
+    font-family:var(--mono);font-size:13px;border-radius:2px;position:relative;padding:0
+  }
+  .dp-grid button:hover:not(:disabled){background:var(--umber)}
+  .dp-grid button:disabled{color:#5c4536;cursor:default}
+  .dp-grid button.today{border-color:var(--clay-dim)}
+  .dp-grid button.sel{background:var(--sand);color:#2b1e17;font-weight:700}
+  .dp-grid button.has::after{
+    content:"";position:absolute;left:50%;bottom:4px;transform:translateX(-50%);
+    width:3px;height:3px;border-radius:50%;background:var(--clay)
+  }
+  .dp-grid button.sel.has::after{background:#2b1e17}
+  .dp-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;border-top:1px solid var(--umber);padding-top:8px}
+
+  .chart-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .chart-head .seg button{padding:5px 10px;font-size:12px}
+
+  .panel.editing{border-color:var(--clay);background:#31211856}
+  .panel.editing .sec{color:var(--clay)}
+  .edit-flag{
+    display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+    background:var(--clay);color:#231609;padding:2px 8px;border-radius:2px;margin-left:8px;vertical-align:2px
+  }
+  tbody tr.row-editing{background:rgba(201,139,58,.16);box-shadow:inset 2px 0 0 var(--clay)}
+
+  .seg{display:flex;flex-wrap:wrap;gap:6px}
+  .seg button{
+    background:var(--night);border:1px solid var(--umber);color:var(--mute);
+    padding:7px 12px;font-size:13px;border-radius:2px
+  }
+  .seg button:hover{border-color:var(--umber-2);color:var(--sand)}
+  .seg button[aria-pressed="true"]{background:var(--umber);border-color:var(--clay);color:var(--sand);font-weight:600}
+  .seg button[data-s=""][aria-pressed="true"]{border-color:var(--umber-2);color:var(--mute);font-weight:400}
+
+  /* ---------- avatar & profile ---------- */
+  .ava{
+    display:block;border-radius:50%;object-fit:cover;background:var(--umber);
+    border:1px solid var(--umber-2);flex:none
+  }
+  .ava-ph{
+    display:flex;align-items:center;justify-content:center;font-family:var(--serif);
+    color:var(--clay-dim);border-radius:50%;background:var(--umber);border:1px solid var(--umber-2);flex:none
+  }
+  .chip .ava,.chip .ava-ph{width:22px;height:22px;font-size:12px;margin:-2px 0 -2px -6px}
+  .chip[aria-pressed="true"] .ava-ph{background:var(--umber-2);color:var(--sand)}
+  .profile{display:flex;gap:20px;align-items:flex-start;margin-bottom:20px}
+  .profile .ava,.profile .ava-ph{width:96px;height:96px;font-size:38px}
+  .profile-body{flex:1;min-width:0}
+  .profile h2{font-family:var(--serif);font-size:26px;letter-spacing:.1em;margin:0 0 4px;color:var(--sand)}
+  .profile .morph{color:var(--clay);font-size:14px;margin:0 0 10px;word-break:break-word}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 8px;font-size:13px;color:var(--mute)}
+  .meta .tag{font-size:11px}
+  .profile-note{margin:12px 0 0;color:var(--mute);font-size:13px;line-height:1.6}
+  .photo-edit{display:flex;flex-direction:column;gap:8px;align-items:center}
+  .photo-edit .ava,.photo-edit .ava-ph{width:88px;height:88px;font-size:34px}
+
+  /* ---------- charts ---------- */
+  .chart{width:100%;height:auto;display:block;overflow:visible}
+  .chart .axis{font-family:var(--mono);font-size:9px;fill:var(--mute)}
+  .chart .grid-line{stroke:var(--umber);stroke-width:1}
+  .chart .val{font-family:var(--mono);font-size:10px;fill:var(--clay)}
+  .chart .bar{fill:var(--clay)}
+  .chart .bar:hover{fill:var(--sand)}
+  .chart .bar-refuse{fill:var(--umber-2)}
+  .chart-empty{
+    border:1px dashed var(--umber);border-radius:3px;padding:26px 16px;text-align:center;
+    color:var(--mute);font-size:13px;line-height:1.7
+  }
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--mute)}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .stack{display:flex;height:22px;border-radius:2px;overflow:hidden;background:var(--night);gap:1px}
+  .stack i{display:block;min-width:2px}
+  .delta{font-family:var(--mono);font-size:12px}
+  .delta.up{color:var(--moss)}
+  .delta.down{color:var(--danger)}
+
+  /* ---------- band strip (signature) ---------- */
+  .band-wrap{margin:26px 0}
+  .band{
+    display:flex;gap:2px;height:64px;padding:6px;background:var(--night-2);
+    border:1px solid var(--umber);border-radius:32px;overflow:hidden;align-items:stretch
+  }
+  .band i{flex:1;min-width:3px;border-radius:2px;background:var(--umber);position:relative;display:block}
+  .band i.fed{background:var(--sand)}
+  .band i.skip{background:var(--umber)}
+  .band i.off{background:var(--night);opacity:.85}
+  .band i.due{background:transparent;border:1px dashed var(--clay);opacity:.75}
+  .band i.refused{background:repeating-linear-gradient(135deg,var(--umber) 0 3px,var(--umber-2) 3px 6px)}
+  .band i.poop::after{
+    content:"";position:absolute;left:50%;bottom:3px;transform:translateX(-50%);
+    width:4px;height:4px;border-radius:50%;background:var(--moss)
+  }
+  .band i.fed.poop::after{background:#4d5c2e}
+  .band-key{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--mute)}
+  .band-key span{display:flex;align-items:center;gap:6px}
+  .swatch{width:12px;height:12px;border-radius:2px;display:inline-block}
+
+  /* ---------- stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--umber);border:1px solid var(--umber);border-radius:3px;overflow:hidden;margin-bottom:26px}
+  .stat{background:var(--card);padding:16px 14px}
+  .stat b{display:block;font-family:var(--mono);font-size:22px;color:var(--sand);font-variant-numeric:tabular-nums;line-height:1.15}
+  .stat small{display:block;font-size:11px;letter-spacing:.1em;color:var(--mute);margin-top:6px}
+  .stat.alert b{color:var(--danger)}
+
+  /* ---------- table ---------- */
+  .tbl-wrap{overflow-x:auto;margin-top:12px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{
+    font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--clay-dim);
+    text-align:left;font-weight:500;padding:8px 10px;border-bottom:1px solid var(--umber);white-space:nowrap
+  }
+  td{padding:10px;border-bottom:1px solid rgba(74,46,30,.6);vertical-align:top}
+  tbody tr:hover{background:rgba(74,46,30,.35)}
+  td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tag{display:inline-block;font-size:11px;font-family:var(--mono);padding:2px 7px;border-radius:2px;border:1px solid var(--umber-2);color:var(--mute)}
+  .tag.yes{border-color:var(--moss);color:var(--moss)}
+  .tag.refuse{border-color:var(--danger);color:var(--danger)}
+
+  .empty{border:1px dashed var(--umber-2);border-radius:3px;padding:40px 20px;text-align:center;color:var(--mute)}
+  .empty p{margin:0 0 14px}
+
+  /* ---------- modal ---------- */
+  .modal{position:fixed;inset:0;background:rgba(12,8,6,.78);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+  .modal.open{display:flex}
+  .modal-box{background:var(--card);border:1px solid var(--umber-2);border-radius:3px;padding:24px;width:100%;max-width:460px;max-height:90vh;overflow:auto}
+  .modal-box h3{font-family:var(--serif);font-size:20px;letter-spacing:.1em;margin:0 0 18px;color:var(--sand)}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+  /* ---------- toast ---------- */
+  #toast{
+    position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;pointer-events:none;
+    background:var(--sand);color:#2b1e17;padding:11px 22px;border-radius:2px;font-size:14px;font-weight:600;z-index:60;
+    transition:opacity .2s,transform .2s;max-width:90vw;text-align:center
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  footer.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--umber);color:var(--mute);font-size:12px;line-height:1.8}
+  footer.foot code{font-family:var(--mono);color:var(--clay-dim)}
+
+  @media (max-width:720px){
+    .grid{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    h1.title{font-size:24px}
+    .band{height:52px}
+    .profile{gap:14px}
+    .profile .ava,.profile .ava-ph{width:68px;height:68px;font-size:28px}
+    .profile h2{font-size:21px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <p class="eyebrow">Hemitheconyx caudicinctus</p>
+    <h1 class="title">肥尾日誌</h1>
+    <div class="toolbar">
+      <button class="btn" id="btnExport">匯出 Excel</button>
+      <button class="btn" id="btnImport">匯入 Excel</button>
+      <input type="file" id="fileInput" accept=".xlsx,.xls" hidden>
+      <button class="btn btn-danger" id="btnReset">清空全部資料</button>
+    </div>
+  </header>
+
+  <div class="roster" id="roster"></div>
+
+  <div id="mainArea"></div>
+
+  <footer class="foot">
+    資料存在這個對話的私人儲存空間，重新開啟仍會保留。建議定期<b>匯出 Excel</b> 備份。<br>
+    照片會壓縮成 220px 方形頭像，一併寫進「守宮」工作表最後一欄，所以匯出檔可以完整還原（那一欄請勿手動編輯）。<br>
+    匯入時以「守宮」工作表的 <code>ID</code> 與紀錄的 <code>守宮ID＋日期</code> 比對：已存在的會覆蓋，沒有的會新增。<br>
+    同一隻守宮同一天只會保留一筆紀錄，重複儲存視為修改。
+  </footer>
+</div>
+
+<!-- 新增／編輯守宮 -->
+<div class="modal" id="geckoModal">
+  <div class="modal-box">
+    <h3 id="gmTitle">新增守宮</h3>
+    <input type="hidden" id="gmId">
+    <div style="display:flex;gap:18px;align-items:flex-start;margin-bottom:16px">
+      <div class="photo-edit">
+        <div id="gmPhotoBox"></div>
+        <input type="file" id="gmPhotoFile" accept="image/*" hidden>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="field" style="margin-bottom:10px">
+          <label class="lb" for="gmName">名字</label>
+          <input type="text" id="gmName" placeholder="例：阿肥" maxlength="20">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="lb" for="gmSex">性別</label>
+          <select id="gmSex">
+            <option value="未知">未知</option>
+            <option value="公">公</option>
+            <option value="母">母</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin:-6px 0 16px">
+      <button type="button" class="btn" id="gmPhotoPick" style="flex:1">選擇照片</button>
+      <button type="button" class="btn btn-danger" id="gmPhotoClear" hidden>移除照片</button>
+    </div>
+    <div class="field">
+      <label class="lb" for="gmMorph">品系</label>
+      <input type="text" id="gmMorph" placeholder="例：Whiteout Oreo het Amel Zulu">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label class="lb">出生日期</label>
+        <input type="hidden" id="gmBirth">
+      </div>
+      <div class="field">
+        <label class="lb">入手日期</label>
+        <input type="hidden" id="gmAcquired">
+      </div>
+    </div>
+    <div class="field">
+      <label class="lb" for="gmInterval">餵食頻率</label>
+      <div class="seg" id="gmIvPresets" style="margin-bottom:8px"></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="color:var(--mute);font-size:13px">每</span>
+        <input type="number" id="gmInterval" min="1" max="60" step="1" value="3" style="width:88px;text-align:center;font-family:var(--mono)">
+        <span style="color:var(--mute);font-size:13px">天餵一次</span>
+      </div>
+      <p style="font-size:12px;color:var(--mute);margin:8px 0 0">用來判斷哪幾天是排定餵食日，非餵食日不會被算成拒食。</p>
+    </div>
+    <div class="field">
+      <label class="lb" for="gmNote">備註</label>
+      <textarea id="gmNote" placeholder="來源、飼養環境、特殊狀況…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="gmDelete" hidden>刪除這隻</button>
+      <button class="btn" data-close>取消</button>
+      <button class="btn-solid" id="gmSave">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  const KEY = "fattail-gecko-log-v1";
+  const FOODS = ["蟋蟀","杜比亞蟑螂","麵包蟲","大麥蟲","乳鼠","其他"];
+  const SIZES = {
+    "蟋蟀":["針頭","1–2齡 S","3–4齡 M","5齡 L","成蟲"],
+    "杜比亞蟑螂":["S ~1cm","M ~1.5cm","L ~2.5cm","成蟲"],
+    "麵包蟲":["S","M","L"],
+    "大麥蟲":["S","M","L"],
+    "乳鼠":["粉紅鼠","初毛鼠","成鼠"]
+  };
+  const sizesFor = f => SIZES[String(f||"").trim()] || ["S","M","L"];
+  let state = { geckos: [], logs: [] };
+  let currentId = null;
+  let memoryOnly = false;
+
+  /* ---------- utils ---------- */
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  const todayStr = () => fmt(new Date());
+  function fmt(d){
+    const p = n => String(n).padStart(2,"0");
+    return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());
+  }
+  function daysBetween(a,b){ return Math.round((new Date(b+"T00:00:00") - new Date(a+"T00:00:00"))/86400000); }
+  function toast(msg){
+    const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove("show"), 2600);
+  }
+  function normDate(v){
+    if(v==null || v==="") return "";
+    if(v instanceof Date && !isNaN(v)) return fmt(v);
+    if(typeof v === "number"){ // Excel serial
+      const d = new Date(Math.round((v - 25569) * 86400000));
+      return isNaN(d) ? "" : fmt(new Date(d.getTime() + d.getTimezoneOffset()*60000));
+    }
+    const s = String(v).trim().replace(/\//g,"-");
+    const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if(m) return m[1]+"-"+String(m[2]).padStart(2,"0")+"-"+String(m[3]).padStart(2,"0");
+    const d = new Date(s);
+    return isNaN(d) ? "" : fmt(d);
+  }
+  const truthy = v => /^(是|有|true|yes|y|1|✓)$/i.test(String(v==null?"":v).trim());
+  function ageText(birth, today){
+    let m = (new Date(today).getFullYear() - new Date(birth).getFullYear())*12
+          + (new Date(today).getMonth() - new Date(birth).getMonth());
+    if(new Date(today).getDate() < new Date(birth).getDate()) m--;
+    if(m < 0) return "";
+    if(m < 1) return daysBetween(birth, today) + " 天大";
+    if(m < 12) return m + " 個月大";
+    return Math.floor(m/12) + " 歲" + (m%12 ? " " + (m%12) + " 個月" : "");
+  }
+
+  /* ---------- storage ----------
+     在 Claude 內用 window.storage；自架（GitHub Pages 等）時退回 localStorage。 */
+  const store = (typeof window !== "undefined" && window.storage) ? window.storage : {
+    get: async k => {
+      const v = localStorage.getItem(k);
+      if(v === null) throw new Error("key not found: " + k);
+      return { key:k, value:v };
+    },
+    set: async (k,v) => { localStorage.setItem(k, v); return { key:k, value:v }; },
+    delete: async k => { localStorage.removeItem(k); return { key:k, deleted:true }; },
+    list: async p => ({ keys: Object.keys(localStorage).filter(k => !p || k.startsWith(p)) })
+  };
+
+  async function save(){
+    if(memoryOnly) return;
+    try{ await store.set(KEY, JSON.stringify(state)); }
+    catch(e){ memoryOnly = true; toast("無法寫入儲存空間，請記得匯出備份"); }
+  }
+  async function load(){
+    try{
+      const r = await store.get(KEY);
+      if(r && r.value){
+        const d = JSON.parse(r.value);
+        if(d && Array.isArray(d.geckos)) state = { geckos:d.geckos, logs:d.logs||[] };
+      }
+    }catch(e){ /* 尚無資料 */ }
+  }
+
+  /* ---------- 日期選擇器 ---------- */
+  const WK = ["日","一","二","三","四","五","六"];
+  const openPops = [];
+
+  function makePicker(input, opts){
+    opts = opts || {};
+    const wrap = document.createElement("div"); wrap.className = "dp";
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "dp-btn";
+    const pop = document.createElement("div"); pop.className = "dp-pop"; pop.hidden = true;
+    wrap.appendChild(btn); wrap.appendChild(pop);
+    let view = new Date();
+
+    function label(){
+      const v = input.value;
+      btn.classList.toggle("empty", !v);
+      const wd = v ? "（週" + WK[new Date(v+"T00:00:00").getDay()] + "）" : "";
+      btn.innerHTML = `<span>${esc(v ? v + wd : (opts.placeholder||"選擇日期"))}</span><span class="cal">▾ 選擇</span>`;
+    }
+    function draw(){
+      const y = view.getFullYear(), m = view.getMonth();
+      const pad = new Date(y,m,1).getDay();
+      const dim = new Date(y,m+1,0).getDate();
+      const sel = input.value, t = todayStr();
+      let cells = "";
+      for(let i=0;i<pad;i++) cells += `<button type="button" disabled></button>`;
+      for(let d=1;d<=dim;d++){
+        const ds = fmt(new Date(y,m,d));
+        const dis = opts.maxToday && ds > t;
+        const c = [];
+        if(ds===t) c.push("today");
+        if(ds===sel) c.push("sel");
+        if(opts.marks && opts.marks.has(ds)) c.push("has");
+        cells += `<button type="button" class="${c.join(" ")}" data-d="${ds}" ${dis?"disabled":""}>${d}</button>`;
+      }
+      pop.innerHTML =
+        `<div class="dp-head">
+           <button type="button" class="dp-nav" data-n="-12" aria-label="上一年">«</button>
+           <button type="button" class="dp-nav" data-n="-1" aria-label="上個月">‹</button>
+           <b>${y} 年 ${m+1} 月</b>
+           <button type="button" class="dp-nav" data-n="1" aria-label="下個月">›</button>
+           <button type="button" class="dp-nav" data-n="12" aria-label="下一年">»</button>
+         </div>
+         <div class="dp-grid">${WK.map(w=>`<span>${w}</span>`).join("")}${cells}</div>
+         <div class="dp-foot">
+           <button type="button" class="btn-ghost" data-d="${t}">跳到今天</button>
+           ${opts.allowClear?`<button type="button" class="btn-ghost" data-d="">清除</button>`:""}
+         </div>`;
+    }
+    function open(){
+      closeAll();
+      view = input.value ? new Date(input.value+"T00:00:00") : new Date();
+      draw(); pop.hidden = false; openPops.push(close);
+    }
+    function close(){ pop.hidden = true; }
+
+    btn.onclick = e => { e.stopPropagation(); pop.hidden ? open() : close(); };
+    pop.onclick = e => {
+      e.stopPropagation();
+      const nav = e.target.closest("[data-n]");
+      if(nav){ view.setDate(1); view.setMonth(view.getMonth() + (+nav.dataset.n)); draw(); return; }
+      const day = e.target.closest("[data-d]");
+      if(!day) return;
+      input.value = day.dataset.d;
+      label(); close();
+      input.dispatchEvent(new Event("change"));
+    };
+    input._set = v => { input.value = v || ""; label(); };
+    label();
+    return input;
+  }
+  function closeAll(){ while(openPops.length) openPops.pop()(); }
+  document.addEventListener("click", closeAll);
+  document.addEventListener("keydown", e => { if(e.key==="Escape") closeAll(); });
+  const setDate = (el,v) => { if(el._set) el._set(v); else el.value = v||""; };
+
+  const DEFAULT_IV = 3;
+  const ivOf = g => Math.max(1, Number(g && g.interval) || DEFAULT_IV);
+  const lastFedBefore = (gid, date) => state.logs
+    .filter(l => l.geckoId===gid && Number(l.qty)>0 && l.date < date)
+    .reduce((m,l)=> !m || l.date>m.date ? l : m, null);
+  function isDueDay(g, date){
+    const last = lastFedBefore(g.id, date);
+    return last ? daysBetween(last.date, date) >= ivOf(g) : true;
+  }
+
+  /* ---------- derived ---------- */
+  const logsOf = id => state.logs.filter(l=>l.geckoId===id).sort((a,b)=> a.date<b.date?1:-1);
+  const findLog = (id,date) => state.logs.find(l=>l.geckoId===id && l.date===date);
+
+  /* ---------- 圖表 ---------- */
+  const FOOD_COLORS = ["var(--sand)","var(--clay)","var(--moss)","var(--umber-2)","#b5723f","#7a6a52","#9c8f6a"];
+
+  function weightChart(list){
+    const pts = list.filter(l=>l.weight!=="" && l.weight!=null && !isNaN(l.weight))
+                    .map(l=>({d:l.date, v:Number(l.weight)}))
+                    .sort((a,b)=> a.d<b.d?-1:1);
+    if(pts.length < 2){
+      return `<div class="chart-empty">記錄兩次以上體重就會畫出成長曲線。<br>
+        肥尾守宮的體重變化比進食量更能反映狀態，建議每 1–2 週固定量一次。</div>`;
+    }
+    const W=560, H=200, L=40, R=14, T=16, B=26;
+    const min=Math.min(...pts.map(p=>p.v)), max=Math.max(...pts.map(p=>p.v));
+    const pad=Math.max((max-min)*0.18, 1.5);
+    const lo=Math.max(0, min-pad), hi=max+pad;
+    const t0=new Date(pts[0].d).getTime(), t1=new Date(pts[pts.length-1].d).getTime();
+    const span=Math.max(t1-t0, 1);
+    const X=p=> L + (new Date(p.d).getTime()-t0)/span*(W-L-R);
+    const Y=p=> T + (1-(p.v-lo)/(hi-lo))*(H-T-B);
+    const line=pts.map((p,i)=>(i?"L":"M")+X(p).toFixed(1)+" "+Y(p).toFixed(1)).join(" ");
+    const area=line+` L${X(pts[pts.length-1]).toFixed(1)} ${H-B} L${X(pts[0]).toFixed(1)} ${H-B} Z`;
+    let grid="";
+    for(let i=0;i<=3;i++){
+      const v=lo+(hi-lo)*i/3, y=T+(1-i/3)*(H-T-B);
+      grid+=`<line class="grid-line" x1="${L}" y1="${y.toFixed(1)}" x2="${W-R}" y2="${y.toFixed(1)}"/>
+             <text class="axis" x="${L-6}" y="${(y+3).toFixed(1)}" text-anchor="end">${v.toFixed(1)}</text>`;
+    }
+    const last=pts[pts.length-1];
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="體重變化折線圖">
+      <defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--clay)" stop-opacity=".35"/>
+        <stop offset="100%" stop-color="var(--clay)" stop-opacity="0"/>
+      </linearGradient></defs>
+      ${grid}
+      <path d="${area}" fill="url(#wg)"/>
+      <path d="${line}" fill="none" stroke="var(--clay)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${pts.map(p=>`<circle cx="${X(p).toFixed(1)}" cy="${Y(p).toFixed(1)}" r="3" fill="var(--night)" stroke="var(--sand)" stroke-width="1.5"><title>${p.d}　${p.v} g</title></circle>`).join("")}
+      <text class="axis" x="${L}" y="${H-8}">${pts[0].d.slice(5)}</text>
+      <text class="axis" x="${W-R}" y="${H-8}" text-anchor="end">${last.d.slice(5)}</text>
+      <text class="val" x="${Math.min(X(last), W-R-4).toFixed(1)}" y="${(Y(last)-9).toFixed(1)}" text-anchor="end">${last.v} g</text>
+    </svg>`;
+  }
+
+  const MODES = [["day","天"],["week","週"],["cycle","餵食週期"],["month","月"],["year","年"]];
+  let chartMode = "week";
+
+  function buildBuckets(mode, today, iv){
+    const t = new Date(today+"T00:00:00"), out = [];
+    const mk = (s,e,label) => out.push({start:fmt(s), end:fmt(e), label, qty:0, fed:0, refused:0, skip:0, poop:0});
+    if(mode==="day"){
+      for(let i=29;i>=0;i--){ const d=new Date(t); d.setDate(d.getDate()-i); mk(d,d, fmt(d).slice(5).replace("-","/")); }
+    } else if(mode==="cycle"){
+      for(let i=11;i>=0;i--){
+        const e=new Date(t); e.setDate(e.getDate()-i*iv);
+        const s=new Date(e); s.setDate(s.getDate()-iv+1);
+        mk(s,e, fmt(s).slice(5).replace("-","/"));
+      }
+    } else if(mode==="month"){
+      for(let i=11;i>=0;i--){
+        const s=new Date(t.getFullYear(), t.getMonth()-i, 1);
+        const e=new Date(s.getFullYear(), s.getMonth()+1, 0);
+        mk(s,e, (s.getMonth()+1)+"月");
+      }
+    } else if(mode==="year"){
+      for(let i=5;i>=0;i--){ const y=t.getFullYear()-i; mk(new Date(y,0,1), new Date(y,11,31), String(y)); }
+    } else { // week
+      const end=new Date(t); end.setDate(end.getDate()-((end.getDay()+6)%7));
+      for(let i=11;i>=0;i--){
+        const s=new Date(end); s.setDate(s.getDate()-i*7);
+        const e=new Date(s); e.setDate(e.getDate()+6);
+        mk(s,e, fmt(s).slice(5).replace("-","/"));
+      }
+    }
+    return out;
+  }
+
+  const MODE_TITLE = {day:"近 30 天", week:"近 12 週", cycle:"近 12 個餵食週期", month:"近 12 個月", year:"近 6 年"};
+  const MODE_UNIT  = {day:"天", week:"週", cycle:"週期", month:"月", year:"年"};
+
+  function intakeChart(list, today, iv, mode){
+    const buckets = buildBuckets(mode, today, iv);
+    list.forEach(l=>{
+      const b = buckets.find(b=> l.date>=b.start && l.date<=b.end); if(!b) return;
+      b.qty += Number(l.qty||0);
+      if(Number(l.qty)>0) b.fed++; else if(l.skipped) b.skip++; else b.refused++;
+      if(l.poop) b.poop++;
+    });
+    if(!buckets.some(b=>b.fed||b.refused||b.skip)){
+      return `<div class="chart-empty">${MODE_TITLE[mode]}還沒有紀錄。</div>`;
+    }
+    const n = buckets.length, max = Math.max(...buckets.map(b=>b.qty), 1);
+    const W=560, H=170, T=14, B=30;
+    const gap = n>20 ? 2 : 6;
+    const bw = (W - gap*(n-1))/n;
+    const every = Math.ceil(n/12);
+    const showNotes = n <= 16;
+    const bars = buckets.map((b,i)=>{
+      const x = i*(bw+gap);
+      const h = b.qty/max*(H-T-B);
+      const y = H-B-h;
+      const range = b.start===b.end ? b.start : b.start.slice(5)+" – "+b.end.slice(5);
+      const tip = `${range}　共 ${b.qty} 隻／進食 ${b.fed}、拒食 ${b.refused}、沒餵 ${b.skip}、排便 ${b.poop}`;
+      const flat = b.refused ? "var(--danger)" : b.skip ? "var(--umber-2)" : "";
+      return `<g><title>${esc(tip)}</title>
+        ${b.qty
+          ? `<rect class="bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h,2).toFixed(1)}" rx="2"/>
+             ${bw>16?`<text class="val" x="${(x+bw/2).toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle">${b.qty}</text>`:""}`
+          : flat ? `<rect x="${x.toFixed(1)}" y="${H-B-3}" width="${bw.toFixed(1)}" height="3" rx="1" fill="${flat}"/>` : ""}
+        ${i%every===0?`<text class="axis" x="${(x+bw/2).toFixed(1)}" y="${H-14}" text-anchor="middle">${esc(b.label)}</text>`:""}
+        ${showNotes&&b.refused?`<text class="axis" x="${(x+bw/2).toFixed(1)}" y="${H-3}" text-anchor="middle" fill="var(--danger)">拒${b.refused}</text>`:""}
+      </g>`;
+    }).join("");
+    const active = buckets.filter(b=>b.fed||b.refused||b.skip);
+    const total = buckets.reduce((s,b)=>s+b.qty,0);
+    const avg = active.length ? (total/active.length).toFixed(1) : "0";
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="進食量長條圖">
+      <line class="grid-line" x1="0" y1="${H-B}" x2="${W}" y2="${H-B}"/>${bars}</svg>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--clay)"></i>進食總量（隻）</span>
+        <span><i class="swatch" style="background:var(--danger)"></i>該區間全拒食</span>
+        <span><i class="swatch" style="background:var(--umber-2)"></i>該區間全沒餵</span>
+        <span style="color:var(--sand)">合計 ${total} 隻・平均每${MODE_UNIT[mode]} ${avg} 隻</span>
+      </div>`;
+  }
+
+  function foodChart(list){
+    const by={};
+    list.forEach(l=>{
+      const q=Number(l.qty||0);
+      if(q>0){ const f=(l.food||"未填") + (l.size?" "+l.size:""); by[f]=(by[f]||0)+q; }
+    });
+    const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]);
+    if(!rows.length) return `<div class="chart-empty">還沒有進食紀錄，餌料比例會在這裡呈現。</div>`;
+    const total=rows.reduce((s,r)=>s+r[1],0);
+    return `<div class="stack">${rows.map(([f,q],i)=>
+        `<i style="flex:${q};background:${FOOD_COLORS[i%FOOD_COLORS.length]}" title="${esc(f)}　${q} 隻（${Math.round(q/total*100)}%）"></i>`).join("")}</div>
+      <div class="legend">${rows.map(([f,q],i)=>
+        `<span><i class="swatch" style="background:${FOOD_COLORS[i%FOOD_COLORS.length]}"></i>${esc(f)} ${q}（${Math.round(q/total*100)}%）</span>`).join("")}</div>`;
+  }
+
+  /* ---------- render ---------- */
+  const avatar = (g, cls) =>
+    g.photo ? `<img class="ava ${cls||""}" src="${g.photo}" alt="${esc(g.name)}">`
+            : `<div class="ava-ph ${cls||""}" aria-hidden="true">${esc((g.name||"?").trim().charAt(0))}</div>`;
+
+  function renderRoster(){
+    const r = $("#roster");
+    r.innerHTML = state.geckos.map(g=>
+      `<button class="chip" aria-pressed="${g.id===currentId}" data-pick="${g.id}">
+         ${avatar(g)}${esc(g.name)}
+       </button>`
+    ).join("") + `<button class="chip chip-add" id="btnAddGecko">＋ 新增守宮</button>`;
+  }
+
+  function render(){
+    renderRoster();
+    const area = $("#mainArea");
+
+    if(!state.geckos.length){
+      area.innerHTML = `<div class="empty">
+        <p>還沒有任何守宮。先建立一隻，就能開始記錄每天的餵食與排便。</p>
+        <button class="btn-solid" id="emptyAdd">新增第一隻守宮</button>
+      </div>`;
+      $("#emptyAdd").onclick = ()=>openGecko();
+      return;
+    }
+
+    const g = state.geckos.find(x=>x.id===currentId) || state.geckos[0];
+    currentId = g.id;
+    const list = logsOf(g.id);
+    const today = todayStr();
+    const existing = findLog(g.id, today);
+
+    /* 統計 */
+    const lastFed = list.find(l=>Number(l.qty)>0);
+    const lastPoop = list.find(l=>l.poop);
+    const month = today.slice(0,7);
+    const monthQty = list.filter(l=>l.date.startsWith(month)).reduce((s,l)=>s+Number(l.qty||0),0);
+    const fastDays = lastFed ? daysBetween(lastFed.date, today) : null;
+    const poopDays = lastPoop ? daysBetween(lastPoop.date, today) : null;
+
+    const iv = ivOf(g);
+    let nextTxt = "—", nextSub = `下次餵食（每 ${iv} 天）`, nextAlert = false;
+    if(lastFed){
+      const due = daysBetween(lastFed.date, today) - iv;   // 0 ＝ 今天該餵
+      if(due === 0) nextTxt = "今天";
+      else if(due > 0){ nextTxt = "逾期 " + due + " 天"; nextAlert = due >= iv; }
+      else nextTxt = -due + " 天後";
+    }
+
+    const weighed = list.filter(l=>l.weight!=="" && l.weight!=null && !isNaN(l.weight));
+    const lastW = weighed[0] || null;
+    let weightDelta = "";
+    if(weighed.length >= 2){
+      const d = +(Number(weighed[0].weight) - Number(weighed[1].weight)).toFixed(1);
+      const cls = d > 0 ? "up" : d < 0 ? "down" : "";
+      weightDelta = ` <span class="delta ${cls}">${d>0?"▲ +":d<0?"▼ ":"● "}${Math.abs(d)} g</span>`;
+    }
+
+    area.innerHTML = `
+      <div class="panel profile">
+        ${avatar(g)}
+        <div class="profile-body">
+          <h2>${esc(g.name)}</h2>
+          ${g.morph?`<p class="morph">${esc(g.morph)}</p>`:`<p class="morph" style="color:var(--mute)">未填品系</p>`}
+          <div class="meta">
+            <span class="tag">${esc(g.sex||"未知")}</span>
+            ${g.birth?`<span class="tag">出生 ${esc(g.birth)}</span><span>${esc(ageText(g.birth,today))}</span>`:""}
+            ${g.acquired?`<span class="tag">入手 ${esc(g.acquired)}</span><span>飼養 ${daysBetween(g.acquired,today)} 天</span>`:""}
+            <span class="tag">每 ${iv} 天餵一次</span>
+            ${lastW?`<span class="tag">最新體重 ${esc(lastW.weight)} g</span>`:""}
+          </div>
+          ${g.note?`<p class="profile-note">${esc(g.note)}</p>`:""}
+          <div style="margin-top:14px"><button class="btn" id="btnEditGecko">編輯資料與照片</button></div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b>${list.length}</b><small>紀錄筆數</small></div>
+        <div class="stat"><b>${monthQty}</b><small>本月進食總量</small></div>
+        <div class="stat ${fastDays!==null&&fastDays>=iv*2?"alert":""}"><b>${fastDays===null?"—":fastDays}</b><small>距上次進食（天）</small></div>
+        <div class="stat ${nextAlert?"alert":""}"><b>${nextTxt}</b><small>${nextSub}</small></div>
+        <div class="stat ${poopDays!==null&&poopDays>=iv+3?"alert":""}"><b>${poopDays===null?"—":poopDays}</b><small>距上次排便（天）</small></div>
+      </div>
+
+      <div class="band-wrap">
+        <h2 class="sec">近 60 天 · ${esc(g.name)}　<span style="color:var(--mute)">每 ${iv} 天餵一次</span></h2>
+        <div class="band" id="band"></div>
+        <div class="band-key">
+          <span><i class="swatch" style="background:var(--sand)"></i>有進食</span>
+          <span><i class="swatch" style="background:var(--umber-2)"></i>拒食</span>
+          <span><i class="swatch" style="background:var(--umber)"></i>沒餵</span>
+          <span><i class="swatch" style="background:transparent;border:1px dashed var(--clay)"></i>排定日未記錄</span>
+          <span><i class="swatch" style="background:var(--night);border:1px solid var(--umber)"></i>非餵食日</span>
+          <span><i class="swatch" style="background:var(--moss);border-radius:50%"></i>當天排便</span>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="panel" id="formPanel">
+          <h2 class="sec" id="formTitle">新增紀錄</h2>
+          <div class="field">
+            <label class="lb">日期</label>
+            <input type="hidden" id="fDate" value="${today}">
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label class="lb" for="fQty">進食數量（0 ＝ 拒食）</label>
+              <div class="stepper">
+                <button type="button" id="qMinus" aria-label="減少">−</button>
+                <input type="number" id="fQty" value="0" min="0" max="99" step="1">
+                <button type="button" id="qPlus" aria-label="增加">＋</button>
+              </div>
+            </div>
+            <div class="field">
+              <label class="lb" for="fFood">餌料</label>
+              <input type="text" id="fFood" list="foodList" value="蟋蟀">
+              <datalist id="foodList">${FOODS.map(f=>`<option value="${f}">`).join("")}</datalist>
+            </div>
+          </div>
+          <div class="field" id="zeroWrap" hidden>
+            <label class="lb">數量為 0，這天是？</label>
+            <div class="seg" id="fStatus">
+              <button type="button" data-k="skip">沒餵（非餵食日）</button>
+              <button type="button" data-k="refuse">拒食（有給但不吃）</button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="lb" for="fSize">餌料尺寸</label>
+            <div class="seg" id="fSize"></div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label class="lb">排便</label>
+              <div class="toggle">
+                <button type="button" id="pYes" aria-pressed="false">有</button>
+                <button type="button" class="no" id="pNo" aria-pressed="true">無</button>
+              </div>
+            </div>
+            <div class="field">
+              <label class="lb" for="fWeight">體重（g，選填）</label>
+              <input type="number" id="fWeight" min="0" step="0.1" placeholder="—">
+            </div>
+          </div>
+          <div class="field">
+            <label class="lb" for="fNote">備註</label>
+            <textarea id="fNote" placeholder="蛻皮、活力、環境溫濕度…"></textarea>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-solid" id="btnSaveLog" style="flex:1">儲存紀錄</button>
+            <button class="btn" id="btnCancelEdit" hidden>取消編輯</button>
+          </div>
+          <p style="font-size:12px;color:var(--mute);margin:10px 0 0" id="dupHint">${existing?"這一天已有紀錄，儲存後會覆蓋。":""}</p>
+        </div>
+
+        <div class="panel">
+          <h2 class="sec">體重變化${weightDelta}</h2>
+          ${weightChart(list)}
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:20px">
+        <div class="chart-head">
+          <h2 class="sec" id="intakeTitle" style="margin:0">進食量 · ${MODE_TITLE[chartMode]}</h2>
+          <div class="seg" id="modeSeg">${MODES.map(([k,t])=>
+            `<button type="button" data-m="${k}" aria-pressed="${chartMode===k}">${k==="cycle"?`每 ${iv} 天`:t}</button>`).join("")}</div>
+        </div>
+        <div id="intakeBox">${intakeChart(list, today, iv, chartMode)}</div>
+        <h2 class="sec" style="margin:24px 0 10px">餌料組成</h2>
+        ${foodChart(list)}
+      </div>
+
+      <h2 class="sec" style="margin-top:30px">紀錄明細</h2>
+      ${list.length ? `<div class="tbl-wrap"><table>
+        <thead><tr><th>日期</th><th>餌料</th><th>數量</th><th>排便</th><th>體重</th><th>備註</th><th></th></tr></thead>
+        <tbody>${list.map(l=>`
+          <tr>
+            <td class="num">${esc(l.date)}</td>
+            <td>${esc(l.food||"—")}${l.size?` <span class="tag">${esc(l.size)}</span>`:""}</td>
+            <td class="num">${Number(l.qty)>0?esc(l.qty):(l.skipped?`<span class="tag">沒餵</span>`:`<span class="tag refuse">拒食</span>`)}</td>
+            <td>${l.poop?`<span class="tag yes">有</span>`:`<span class="tag">無</span>`}</td>
+            <td class="num">${l.weight?esc(l.weight)+" g":"—"}</td>
+            <td style="color:var(--mute)">${esc(l.note||"")}</td>
+            <td style="text-align:right"><button class="btn-ghost" data-edit="${l.id}">編輯</button><button class="btn-ghost btn-danger" data-del="${l.id}">刪除</button></td>
+          </tr>`).join("")}
+        </tbody></table></div>`
+      : `<div class="empty"><p>${esc(g.name)} 還沒有紀錄。用上面的表單記下今天的餵食。</p></div>`}
+    `;
+
+    makePicker($("#fDate"), { maxToday:true, marks:new Set(list.map(l=>l.date)) });
+    $("#modeSeg").onclick = e => {
+      const b = e.target.closest("[data-m]"); if(!b) return;
+      chartMode = b.dataset.m;
+      $("#intakeBox").innerHTML = intakeChart(list, today, iv, chartMode);
+      $("#intakeTitle").textContent = "進食量 · " + MODE_TITLE[chartMode];
+      $("#modeSeg").querySelectorAll("[data-m]").forEach(x=>
+        x.setAttribute("aria-pressed", x.dataset.m === chartMode));
+    };
+    drawBand(g.id, today, iv);
+    bindForm(g, existing);
+  }
+
+  function drawBand(gid, today, iv){
+    const band = $("#band"); if(!band) return;
+    const map = {};
+    state.logs.filter(l=>l.geckoId===gid).forEach(l=>map[l.date]=l);
+    const dates = [];
+    for(let i=59;i>=0;i--){ const d=new Date(today+"T00:00:00"); d.setDate(d.getDate()-i); dates.push(fmt(d)); }
+    let lastFed = (lastFedBefore(gid, dates[0])||{}).date || null;
+    let html = "";
+    dates.forEach(ds=>{
+      const l = map[ds];
+      let cls, tip;
+      if(l && Number(l.qty)>0){
+        cls = "fed";
+        tip = ds + "　" + (l.food||"餌料") + (l.size?"（"+l.size+"）":"") + " × " + l.qty;
+        lastFed = ds;
+      } else if(l && l.skipped){
+        cls = "skip"; tip = ds + "　沒餵（非餵食日）";
+      } else if(l){
+        cls = "refused"; tip = ds + "　拒食";
+      } else {
+        const due = lastFed ? daysBetween(lastFed, ds) >= iv : false;
+        cls = due ? "due" : "off";
+        tip = ds + (due ? "　排定餵食日，尚無紀錄" : "　非餵食日");
+      }
+      if(l && l.poop){ cls += " poop"; tip += "　排便 ✓"; }
+      html += `<i class="${cls}" title="${esc(tip)}"></i>`;
+    });
+    band.innerHTML = html;
+  }
+
+  function bindForm(g, existing){
+    let poop = false, size = "";
+    const setPoop = v => { poop = v; $("#pYes").setAttribute("aria-pressed",v); $("#pNo").setAttribute("aria-pressed",!v); };
+    $("#pYes").onclick = ()=>setPoop(true);
+    $("#pNo").onclick  = ()=>setPoop(false);
+    $("#qPlus").onclick  = ()=>{ const i=$("#fQty"); i.value = Math.min(99, (+i.value||0)+1); autoStatus(); drawStatus(); };
+    $("#qMinus").onclick = ()=>{ const i=$("#fQty"); i.value = Math.max(0, (+i.value||0)-1); autoStatus(); drawStatus(); };
+
+    function drawSizes(){
+      const opts = sizesFor($("#fFood").value);
+      if(size && opts.indexOf(size) === -1) size = "";
+      $("#fSize").innerHTML =
+        `<button type="button" data-s="" aria-pressed="${!size}">未指定</button>` +
+        opts.map(o=>`<button type="button" data-s="${esc(o)}" aria-pressed="${size===o}">${esc(o)}</button>`).join("");
+    }
+    $("#fSize").onclick = e => {
+      const b = e.target.closest("[data-s]"); if(!b) return;
+      size = b.dataset.s; drawSizes();
+    };
+    $("#fFood").oninput = drawSizes;
+    drawSizes();
+
+    let editingId = null, skipped = false, statusTouched = false;
+
+    function drawStatus(){
+      const zero = (+$("#fQty").value || 0) === 0;
+      $("#zeroWrap").hidden = !zero;
+      $("#fSize").closest(".field").style.opacity = zero ? ".45" : "";
+      if(!zero) return;
+      $("#fStatus").innerHTML =
+        `<button type="button" data-k="skip" aria-pressed="${skipped}">沒餵（非餵食日）</button>
+         <button type="button" data-k="refuse" aria-pressed="${!skipped}">拒食（有給但不吃）</button>`;
+    }
+    function autoStatus(){
+      if(statusTouched) return;
+      skipped = !isDueDay(g, $("#fDate").value);   // 不是排定餵食日 → 預設「沒餵」
+      drawStatus();
+    }
+    $("#fStatus").onclick = e => {
+      const b = e.target.closest("[data-k]"); if(!b) return;
+      skipped = b.dataset.k === "skip"; statusTouched = true; drawStatus();
+    };
+    $("#fQty").oninput = () => { autoStatus(); drawStatus(); };
+
+    function fill(l){
+      setDate($("#fDate"), l.date); $("#fQty").value = l.qty;
+      $("#fFood").value = l.food||""; $("#fWeight").value = l.weight||"";
+      $("#fNote").value = l.note||""; setPoop(!!l.poop);
+      size = l.size||""; drawSizes();
+      skipped = !!l.skipped; statusTouched = true; drawStatus();
+    }
+    function clearForm(){
+      setDate($("#fDate"), todayStr()); $("#fQty").value = 0;
+      $("#fFood").value = "蟋蟀"; $("#fWeight").value = ""; $("#fNote").value = "";
+      setPoop(false); size = ""; drawSizes();
+      statusTouched = false; autoStatus(); drawStatus();
+    }
+    function setMode(){
+      const on = !!editingId;
+      $("#formPanel").classList.toggle("editing", on);
+      $("#formTitle").innerHTML = on ? `編輯紀錄<span class="edit-flag">修改中</span>` : "新增紀錄";
+      $("#btnSaveLog").textContent = on ? "更新這筆紀錄" : "儲存紀錄";
+      $("#btnCancelEdit").hidden = !on;
+      document.querySelectorAll("tbody tr").forEach(tr=>tr.classList.remove("row-editing"));
+      if(on){
+        const btn = document.querySelector(`[data-edit="${editingId}"]`);
+        if(btn) btn.closest("tr").classList.add("row-editing");
+      }
+      hint();
+    }
+    function hint(){
+      const date = $("#fDate").value;
+      const other = findLog(g.id, date);
+      const el = $("#dupHint");
+      if(editingId){
+        const src = state.logs.find(l=>l.id===editingId);
+        if(src && src.date !== date){
+          el.innerHTML = other && other.id !== editingId
+            ? `將把 ${src.date} 這筆搬到 ${date}，<b style="color:var(--danger)">並覆蓋該日原有的紀錄</b>。`
+            : `將把這筆紀錄從 ${src.date} 改成 ${date}。`;
+        } else {
+          el.textContent = "正在修改 " + date + " 的紀錄。";
+        }
+      } else {
+        el.textContent = other ? "這一天已有紀錄，儲存後會覆蓋。" : "";
+      }
+    }
+    function startEdit(l){
+      editingId = l.id; fill(l); setMode();
+      $("#formPanel").scrollIntoView({behavior:"smooth", block:"center"});
+    }
+    function cancelEdit(){ editingId = null; clearForm(); setMode(); }
+
+    if(existing) fill(existing); else { statusTouched = false; autoStatus(); }
+    drawStatus();
+    $("#btnCancelEdit").onclick = cancelEdit;
+
+    $("#fDate").onchange = ()=>{
+      if(editingId){ hint(); return; }          // 編輯中改日期＝搬移，不覆寫表單內容
+      const d = $("#fDate").value;
+      const l = findLog(g.id, d);
+      if(l){ fill(l); editingId = l.id; setMode(); }
+      else { clearForm(); setDate($("#fDate"), d); statusTouched = false; autoStatus(); drawStatus(); hint(); }
+    };
+
+    $("#btnSaveLog").onclick = async ()=>{
+      const date = $("#fDate").value;
+      if(!date){ toast("請選擇日期"); return; }
+      const rec = {
+        id: editingId || (findLog(g.id,date)||{}).id || uid(),
+        geckoId: g.id, date,
+        food: $("#fFood").value.trim(),
+        size,
+        qty: Math.max(0, +$("#fQty").value||0),
+        skipped: (+$("#fQty").value||0) === 0 ? skipped : false,
+        poop,
+        weight: $("#fWeight").value ? +$("#fWeight").value : "",
+        note: $("#fNote").value.trim()
+      };
+      state.logs = state.logs.filter(l =>
+        !(l.id === rec.id) && !(l.geckoId === g.id && l.date === date));
+      state.logs.push(rec);
+      const wasEdit = !!editingId;
+      await save(); render(); toast(wasEdit ? "已更新 " + date : "已記錄 " + date);
+    };
+
+    $("#btnEditGecko").onclick = ()=>openGecko(g);
+
+    document.querySelectorAll("[data-del]").forEach(b=> b.onclick = async ()=>{
+      if(!confirm("刪除這筆紀錄？")) return;
+      state.logs = state.logs.filter(l=>l.id!==b.dataset.del);
+      await save(); render(); toast("已刪除");
+    });
+    document.querySelectorAll("[data-edit]").forEach(b=> b.onclick = ()=>{
+      const l = state.logs.find(x=>x.id===b.dataset.edit);
+      if(l) startEdit(l);
+    });
+  }
+
+  /* ---------- 守宮 modal ---------- */
+  let gmPhoto = "";
+  function drawPhotoBox(name){
+    $("#gmPhotoBox").innerHTML = gmPhoto
+      ? `<img class="ava" src="${gmPhoto}" alt="預覽">`
+      : `<div class="ava-ph">${esc((name||"?").trim().charAt(0)||"?")}</div>`;
+    $("#gmPhotoClear").hidden = !gmPhoto;
+    $("#gmPhotoPick").textContent = gmPhoto ? "更換照片" : "選擇照片";
+  }
+  function shrinkImage(file, cb){
+    const fr = new FileReader();
+    fr.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const s = Math.min(img.width, img.height), size = 220;
+        const c = document.createElement("canvas"); c.width = c.height = size;
+        c.getContext("2d").drawImage(img, (img.width-s)/2, (img.height-s)/2, s, s, 0, 0, size, size);
+        let q = 0.72, url = c.toDataURL("image/jpeg", q);
+        while(url.length > 28000 && q > 0.32){ q -= 0.1; url = c.toDataURL("image/jpeg", q); }
+        cb(url);
+      };
+      img.onerror = () => toast("這個圖檔讀不出來，換一張試試");
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  }
+  $("#gmPhotoPick").onclick = () => $("#gmPhotoFile").click();
+  $("#gmPhotoFile").onchange = e => {
+    const f = e.target.files[0]; if(!f) return;
+    shrinkImage(f, url => { gmPhoto = url; drawPhotoBox($("#gmName").value); });
+    e.target.value = "";
+  };
+  $("#gmPhotoClear").onclick = () => { gmPhoto = ""; drawPhotoBox($("#gmName").value); };
+
+  const IV_PRESETS = [[1,"每天"],[2,"隔天"],[3,"每 3 天"],[4,"每 4 天"],[7,"每週"]];
+  function drawIvPresets(){
+    const v = +$("#gmInterval").value || 0;
+    $("#gmIvPresets").innerHTML = IV_PRESETS.map(([n,t])=>
+      `<button type="button" data-iv="${n}" aria-pressed="${v===n}">${t}</button>`).join("");
+  }
+  $("#gmIvPresets").onclick = e => {
+    const b = e.target.closest("[data-iv]"); if(!b) return;
+    $("#gmInterval").value = b.dataset.iv; drawIvPresets();
+  };
+  $("#gmInterval").oninput = drawIvPresets;
+
+  function openGecko(g){
+    $("#gmTitle").textContent = g ? "編輯守宮" : "新增守宮";
+    $("#gmId").value = g?g.id:"";
+    $("#gmName").value = g?g.name:"";
+    $("#gmMorph").value = g?(g.morph||""):"";
+    $("#gmSex").value = g?(g.sex||"未知"):"未知";
+    setDate($("#gmBirth"), g?(g.birth||""):"");
+    setDate($("#gmAcquired"), g?(g.acquired||""):"");
+    $("#gmNote").value = g?(g.note||""):"";
+    $("#gmInterval").value = g?(Number(g.interval)||DEFAULT_IV):DEFAULT_IV;
+    drawIvPresets();
+    gmPhoto = g?(g.photo||""):"";
+    drawPhotoBox(g?g.name:"");
+    $("#gmName").oninput = () => { if(!gmPhoto) drawPhotoBox($("#gmName").value); };
+    $("#gmDelete").hidden = !g;
+    $("#geckoModal").classList.add("open");
+    setTimeout(()=>$("#gmName").focus(),50);
+  }
+  const closeGecko = ()=> $("#geckoModal").classList.remove("open");
+
+  $("#gmSave").onclick = async ()=>{
+    const name = $("#gmName").value.trim();
+    if(!name){ toast("請輸入名字"); $("#gmName").focus(); return; }
+    const id = $("#gmId").value;
+    const data = { name, morph:$("#gmMorph").value.trim(), sex:$("#gmSex").value,
+                   birth:$("#gmBirth").value, acquired:$("#gmAcquired").value,
+                   photo:gmPhoto, interval:Math.max(1, Math.min(60, +$("#gmInterval").value||DEFAULT_IV)),
+                   note:$("#gmNote").value.trim() };
+    if(id){ Object.assign(state.geckos.find(x=>x.id===id), data); }
+    else { const n = Object.assign({id:uid()}, data); state.geckos.push(n); currentId = n.id; }
+    await save(); closeGecko(); render(); toast("已儲存");
+  };
+  $("#gmDelete").onclick = async ()=>{
+    const id = $("#gmId").value;
+    const g = state.geckos.find(x=>x.id===id);
+    if(!confirm(`刪除「${g.name}」及其所有紀錄？此動作無法復原。`)) return;
+    state.geckos = state.geckos.filter(x=>x.id!==id);
+    state.logs = state.logs.filter(l=>l.geckoId!==id);
+    if(currentId===id) currentId = state.geckos[0]?state.geckos[0].id:null;
+    await save(); closeGecko(); render(); toast("已刪除");
+  };
+  document.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeGecko);
+  $("#geckoModal").onclick = e => { if(e.target.id==="geckoModal") closeGecko(); };
+  document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeGecko(); });
+
+  $("#roster").onclick = e=>{
+    const pick = e.target.closest("[data-pick]");
+    if(pick){ currentId = pick.dataset.pick; render(); return; }
+    if(e.target.closest("#btnAddGecko")) openGecko();
+  };
+
+  /* ---------- Excel ---------- */
+  $("#btnExport").onclick = ()=>{
+    const nameOf = id => (state.geckos.find(g=>g.id===id)||{}).name || "";
+    const wsG = XLSX.utils.json_to_sheet(state.geckos.map(g=>({
+      ID:g.id, 名字:g.name, 品系:g.morph||"", 性別:g.sex||"",
+      出生日期:g.birth||"", 入手日期:g.acquired||"", "餵食頻率(天)":ivOf(g), 備註:g.note||"",
+      "照片(請勿編輯)": g.photo||""
+    })), {header:["ID","名字","品系","性別","出生日期","入手日期","餵食頻率(天)","備註","照片(請勿編輯)"]});
+    wsG["!cols"] = [{wch:14},{wch:12},{wch:40},{wch:8},{wch:12},{wch:12},{wch:12},{wch:30},{wch:14}];
+
+    const rows = state.logs.slice().sort((a,b)=> a.date<b.date?-1: a.date>b.date?1:0).map(l=>({
+      守宮ID:l.geckoId, 守宮名字:nameOf(l.geckoId), 日期:l.date, 餌料:l.food||"", 尺寸:l.size||"",
+      進食數量:Number(l.qty||0), 狀態: Number(l.qty)>0 ? "進食" : (l.skipped ? "沒餵" : "拒食"),
+      排便:l.poop?"有":"無",
+      "體重(g)": l.weight===""||l.weight==null ? "" : Number(l.weight), 備註:l.note||""
+    }));
+    const wsL = XLSX.utils.json_to_sheet(rows, {header:["守宮ID","守宮名字","日期","餌料","尺寸","進食數量","狀態","排便","體重(g)","備註"]});
+    wsL["!cols"] = [{wch:14},{wch:12},{wch:12},{wch:14},{wch:12},{wch:10},{wch:8},{wch:8},{wch:10},{wch:30}];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, wsG, "守宮");
+    XLSX.utils.book_append_sheet(wb, wsL, "餵食紀錄");
+    XLSX.writeFile(wb, `肥尾日誌_${todayStr()}.xlsx`);
+    toast("已匯出 Excel");
+  };
+
+  $("#btnImport").onclick = ()=> $("#fileInput").click();
+  $("#fileInput").onchange = e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const reader = new FileReader();
+    reader.onload = async ev=>{
+      try{
+        const wb = XLSX.read(new Uint8Array(ev.target.result), {type:"array", cellDates:true});
+        const shG = wb.Sheets["守宮"] || wb.Sheets[wb.SheetNames[0]];
+        const shL = wb.Sheets["餵食紀錄"] || wb.Sheets[wb.SheetNames[1]];
+        let addG=0, addL=0;
+
+        if(shG){
+          XLSX.utils.sheet_to_json(shG).forEach(r=>{
+            const name = String(r["名字"]||r["名稱"]||"").trim(); if(!name) return;
+            const id = String(r["ID"]||"").trim();
+            let g = (id && state.geckos.find(x=>x.id===id)) || state.geckos.find(x=>x.name===name);
+            const photo = String(r["照片(請勿編輯)"]||r["照片"]||"").trim();
+            const data = { name, morph:String(r["品系"]||""), sex:String(r["性別"]||"未知"),
+                           birth:normDate(r["出生日期"]), acquired:normDate(r["入手日期"]),
+                           interval:Math.max(1, Math.min(60, Number(r["餵食頻率(天)"])||DEFAULT_IV)),
+                           note:String(r["備註"]||"") };
+            if(/^data:image\//.test(photo)) data.photo = photo;
+            if(g) Object.assign(g, data);
+            else { state.geckos.push(Object.assign({id:id||uid()}, data)); addG++; }
+          });
+        }
+        if(shL){
+          XLSX.utils.sheet_to_json(shL).forEach(r=>{
+            const date = normDate(r["日期"]); if(!date) return;
+            const gid = String(r["守宮ID"]||"").trim();
+            const gname = String(r["守宮名字"]||"").trim();
+            let g = (gid && state.geckos.find(x=>x.id===gid)) || state.geckos.find(x=>x.name===gname);
+            if(!g){
+              if(!gname && !gid) return;
+              g = {id:gid||uid(), name:gname||"未命名", morph:"", sex:"未知", birth:"", acquired:"", note:""};
+              state.geckos.push(g); addG++;
+            }
+            const w = r["體重(g)"]!==undefined ? r["體重(g)"] : r["體重"];
+            const rec = { id:uid(), geckoId:g.id, date, food:String(r["餌料"]||""), size:String(r["尺寸"]||""),
+                          qty:Math.max(0, Number(r["進食數量"]||0)),
+                          skipped:/沒餵|未餵|skip/i.test(String(r["狀態"]||"")),
+                          poop:truthy(r["排便"]),
+                          weight: (w===""||w==null)?"":Number(w), note:String(r["備註"]||"") };
+            const old = findLog(g.id, date);
+            if(old){ Object.assign(old, rec, {id:old.id}); }
+            else { state.logs.push(rec); addL++; }
+          });
+        }
+        if(!currentId && state.geckos.length) currentId = state.geckos[0].id;
+        await save(); render();
+        toast(`匯入完成：新增 ${addG} 隻守宮、${addL} 筆紀錄`);
+      }catch(err){
+        console.error(err);
+        toast("讀不到這個檔案，請確認是匯出的 Excel 格式");
+      }
+      e.target.value = "";
+    };
+    reader.readAsArrayBuffer(f);
+  };
+
+  $("#btnReset").onclick = async ()=>{
+    if(!confirm("清空全部守宮與紀錄？建議先匯出備份。")) return;
+    state = {geckos:[], logs:[]}; currentId = null;
+    await save(); render(); toast("已清空");
+  };
+
+  /* ---------- boot ---------- */
+  (async function init(){
+    makePicker($("#gmBirth"), { maxToday:true, allowClear:true, placeholder:"未填，點此選擇" });
+    makePicker($("#gmAcquired"), { maxToday:true, allowClear:true, placeholder:"未填，點此選擇" });
+    await load();
+    if(state.geckos.length) currentId = state.geckos[0].id;
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
