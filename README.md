@@ -1,6 +1,6 @@
 # 肥尾日誌 · Fat-Tailed Gecko Log
 
-肥尾守宮（*Hemitheconyx caudicinctus*）飼育紀錄工具。單一 HTML 檔，無後端、無建置流程，開啟即用。hello
+肥尾守宮（*Hemitheconyx caudicinctus*）飼育紀錄工具。單一 HTML 檔，無後端、無建置流程，開啟即用。
 
 ## 功能
 
