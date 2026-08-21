@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git commit*)",
+            "command": "echo '{\"systemMessage\": \"SDLC 品質關卡提醒（CLAUDE.md）：1) 瀏覽器手動測試 index.html  2) 執行 /code-review  3) 同步更新 README.md / TODO.md  4) localStorage/Excel schema 變更需有自動遷移邏輯\"}'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

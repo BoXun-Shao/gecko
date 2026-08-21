@@ -1,5 +1,7 @@
 # 肥尾日誌 · Fat-Tailed Gecko Log
 
+`v0.1`
+
 肥尾守宮（*Hemitheconyx caudicinctus*）飼育紀錄工具。單一 HTML 檔，無後端、無建置流程，開啟即用。
 
 ## 功能
@@ -34,7 +36,6 @@
 
 ## Roadmap
 
-- [ ] 接 Supabase（Postgres）達成跨裝置同步
-- [ ] 照片改存物件儲存，資料表僅存 URL
-- [ ] `qty` + `skipped` 改為單一 `status` 列舉（fed / refused / skipped）
-- [ ] 蛻皮、除蟲、環境溫濕度紀錄
+長期方向：跨裝置同步（Supabase）、照片改存物件儲存、更完整的健康紀錄（蛻皮、除蟲、溫濕度）。
+
+完整待辦清單與優先序見 [TODO.md](TODO.md)。開發流程規範見 [CLAUDE.md](CLAUDE.md)。
