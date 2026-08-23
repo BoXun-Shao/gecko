@@ -4,7 +4,9 @@
 
 ## 專案性質
 
-單一 HTML 檔（`index.html`）、無建置流程、無後端。資料存在瀏覽器 `localStorage`，可匯出/匯入 Excel。詳見 [README.md](README.md)。
+**現況（尚未變更）**：單一 HTML 檔（`index.html`）、無建置流程、無後端。資料存在瀏覽器 `localStorage`，可匯出/匯入 Excel。詳見 [README.md](README.md)。
+
+**架構轉型中**：依 [2026-08-23-資料庫化與商用架構規劃.md](docs/requirements/2026-08-23-資料庫化與商用架構規劃.md)，專案正在規劃轉型為 React 前端 + Python（FastAPI）後端 + PostgreSQL 資料庫，並以未來可能商用（多使用者）的角度設計 schema。轉型完成、新版功能與舊版對等後，舊的單一 HTML 檔架構會被淘汰。**在轉型完成前，上面「現況」描述仍然有效**；開發時以該需求書為 source of truth，不要提前假設新架構已經到位。
 
 ## 需求驅動開發（最優先規則）
 
