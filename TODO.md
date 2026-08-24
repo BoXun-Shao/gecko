@@ -8,8 +8,9 @@
 
 取代原本「接 Supabase」的規劃，改為自建 FastAPI + PostgreSQL + React。以下依需求書建議分期，完成後淘汰舊版 `index.html`：
 
-- [ ] P0 後端專案骨架：FastAPI + PostgreSQL 連線、user/gecko/log 資料表 migration、seed 預設 user
-      性別欄位（公/母/未知）與下蛋紀錄（日期＋蛋數＋備註）須一併納入 schema，見 [docs/requirements/2026-08-24-性別與下蛋紀錄.md](docs/requirements/2026-08-24-性別與下蛋紀錄.md)
+- [x] P0 後端專案骨架：FastAPI + PostgreSQL 連線、user/gecko/log 資料表 migration、seed 預設 user
+      性別欄位（公/母/未知）與下蛋紀錄（日期＋蛋數＋備註）已一併納入 schema，見 [docs/requirements/2026-08-24-性別與下蛋紀錄.md](docs/requirements/2026-08-24-性別與下蛋紀錄.md)
+      已於本機驗證：`docker compose up -d` 啟動 Postgres → `alembic upgrade head` 建立全部 7 張表 → `python -m app.seed` 寫入預設 user → `uvicorn` 啟動後 `/health` 回應正常
 - [ ] P0 API endpoints：涵蓋現有功能 + 下方「紀錄功能重新規劃」所有欄位（進食 status、蛻皮、溫濕度、下蛋）
 - [ ] P0 前端重寫：React 專案，呼叫新 API，取代 localStorage 操作邏輯
 - [ ] P1 照片改存後端伺服器本地檔案系統，資料表僅存路徑

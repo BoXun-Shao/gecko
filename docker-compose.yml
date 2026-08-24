@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gecko
+      POSTGRES_PASSWORD: gecko
+      POSTGRES_DB: gecko
+    ports:
+      - "5432:5432"
+    volumes:
+      - gecko_pgdata:/var/lib/postgresql/data
+
+volumes:
+  gecko_pgdata:
