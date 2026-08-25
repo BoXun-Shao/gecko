@@ -1,6 +1,6 @@
 # Backend
 
-FastAPI + PostgreSQL + SQLAlchemy + Alembic。schema 定義見 [docs/requirements/2026-08-24-資料庫schema定案.md](../docs/requirements/2026-08-24-資料庫schema定案.md)。
+FastAPI + PostgreSQL + SQLAlchemy + Alembic。schema 定義見 [docs/requirements/2026-08-24-資料庫schema定案.md](../docs/requirements/2026-08-24-資料庫schema定案.md)（原始決策紀錄）與 [docs/database/schema.md](../docs/database/schema.md)（自動產生的最新 schema + ER 圖）。
 
 ## 本機開發設置
 
@@ -29,6 +29,14 @@ uvicorn app.main:app --reload
 ```
 
 啟動後可到 http://localhost:8000/docs 看自動產生的 API 文件，http://localhost:8000/health 確認服務存活。
+
+## 更新 schema 文件
+
+每次修改 `app/models.py` 並執行 `alembic upgrade head` 後，重新產生 schema 文件（`docs/database/schema.md`，含資料表定義與 Mermaid ER 圖）：
+
+```bash
+python -m scripts.generate_schema_doc
+```
 
 ## 現況
 

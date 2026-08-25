@@ -59,6 +59,8 @@
 
 範例：TODO.md 中「`qty` + `skipped` 改為單一 `status` 列舉」這類變更，需要寫讀取時的轉換邏輯（偵測舊格式 → 轉換為新格式），而不是要求使用者重新輸入。
 
+**後端 PostgreSQL schema（`backend/app/models.py` + Alembic migration）變更後**，需在 `backend/` 目錄執行 `python -m scripts.generate_schema_doc`，重新產生 [docs/database/schema.md](docs/database/schema.md)（資料表定義 + Mermaid ER 圖），保持與實際 DB schema 同步。該檔案為自動產生，不手動編輯。
+
 ## 版本號
 
 在 README 標註簡單版本號（例如 `v0.1` → `v0.2`），對應重大功能里程碑，不做完整 semver。目前尚未有版本號時視為 `v0.1`（未版本化的初始狀態）。

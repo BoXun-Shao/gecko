@@ -39,6 +39,11 @@
 - [ ] P1 進食狀態改為單一 `status` 列舉（fed / partial / refused / skipped）
       需求書：[docs/requirements/2026-08-23-紀錄功能重新規劃.md](docs/requirements/2026-08-23-紀錄功能重新規劃.md)
       遷移規則（舊 localStorage 資料 → 新 status，經由上方一次性資料遷移工具帶入 PostgreSQL）見需求書
+- [x] P0 全部業務資料表補齊 `created_at`/`updated_at`/`is_deleted`/`deleted_at`，新增 `audit_logs` 全域稽核紀錄機制（ORM event listener，只記變動欄位）
+      需求書：[docs/requirements/2026-08-24-審計軟刪除機制.md](docs/requirements/2026-08-24-審計軟刪除機制.md)
+      `users.email`、`daily_logs(gecko_id, date)` 的 UNIQUE 限制改為 partial index（`WHERE is_deleted = false`）
+- [ ] P1 CRUD delete API 開發時，決定父表軟刪除時子表（如 `geckos` → `daily_logs`/`shedding_logs` 等）要不要一併 cascade 軟刪除；目前 ORM 仍是 `cascade="all, delete-orphan"`（硬刪除子表），與軟刪除語意不一致，需另開需求訪談
+      需求書：[docs/requirements/2026-08-24-審計軟刪除機制.md](docs/requirements/2026-08-24-審計軟刪除機制.md)（已知限制章節）
 
 ## Bug
 

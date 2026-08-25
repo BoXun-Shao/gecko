@@ -7,14 +7,15 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    Index,
     Integer,
     Numeric,
     String,
     Text,
-    UniqueConstraint,
     func,
+    text,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -22,24 +23,44 @@ from .database import Base
 GenderEnum = Enum("male", "female", "unknown", name="gender_enum")
 FeedingStatusEnum = Enum("fed", "partial", "refused", "skipped", name="feeding_status_enum")
 EnvironmentSourceEnum = Enum("manual", "sensor", name="environment_source_enum")
+AuditActionEnum = Enum("insert", "update", "delete", name="audit_action_enum")
 
 
 def _uuid_pk():
     return mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
 
-class User(Base):
+class TimestampMixin:
+    """所有業務資料表共用：建立/更新時間 + 軟刪除欄位。
+
+    `audit_logs` 本身是附加式（append-only）的稽核紀錄表，不套用本 mixin：
+    它不會被軟刪除，也不需要對「稽核紀錄本身的異動」再產生稽核紀錄（避免遞迴）。
+    """
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
+    )
+    is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=text("false"))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class User(Base, TimestampMixin):
     __tablename__ = "users"
+    __table_args__ = (
+        Index("uq_users_email_active", "email", unique=True, postgresql_where=text("is_deleted = false")),
+    )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
-    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String, nullable=False)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     geckos: Mapped[list["Gecko"]] = relationship(back_populates="user")
 
 
-class Gecko(Base):
+class Gecko(Base, TimestampMixin):
     __tablename__ = "geckos"
 
     id: Mapped[uuid.UUID] = _uuid_pk()
@@ -56,10 +77,6 @@ class Gecko(Base):
     safe_temp_max: Mapped[float | None] = mapped_column(Numeric, nullable=True)
     safe_humidity_min: Mapped[float | None] = mapped_column(Numeric, nullable=True)
     safe_humidity_max: Mapped[float | None] = mapped_column(Numeric, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
-    )
 
     user: Mapped[User] = relationship(back_populates="geckos")
     daily_logs: Mapped[list["DailyLog"]] = relationship(back_populates="gecko", cascade="all, delete-orphan")
@@ -70,11 +87,19 @@ class Gecko(Base):
     egg_logs: Mapped[list["EggLog"]] = relationship(back_populates="gecko", cascade="all, delete-orphan")
 
 
-class DailyLog(Base):
+class DailyLog(Base, TimestampMixin):
     """進食＋排便＋體重，維持現有「一天一筆」組合方式，不拆表。"""
 
     __tablename__ = "daily_logs"
-    __table_args__ = (UniqueConstraint("gecko_id", "date", name="uq_daily_logs_gecko_date"),)
+    __table_args__ = (
+        Index(
+            "uq_daily_logs_gecko_date_active",
+            "gecko_id",
+            "date",
+            unique=True,
+            postgresql_where=text("is_deleted = false"),
+        ),
+    )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
     gecko_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("geckos.id"), nullable=False)
@@ -86,25 +111,23 @@ class DailyLog(Base):
     poop: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     weight: Mapped[float | None] = mapped_column(Numeric, nullable=True)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     gecko: Mapped[Gecko] = relationship(back_populates="daily_logs")
 
 
-class SheddingLog(Base):
+class SheddingLog(Base, TimestampMixin):
     __tablename__ = "shedding_logs"
 
     id: Mapped[uuid.UUID] = _uuid_pk()
     gecko_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("geckos.id"), nullable=False)
     date: Mapped[date] = mapped_column(Date, nullable=False)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     gecko: Mapped[Gecko] = relationship(back_populates="shedding_logs")
     photos: Mapped[list["SheddingPhoto"]] = relationship(back_populates="shedding_log", cascade="all, delete-orphan")
 
 
-class SheddingPhoto(Base):
+class SheddingPhoto(Base, TimestampMixin):
     __tablename__ = "shedding_photos"
 
     id: Mapped[uuid.UUID] = _uuid_pk()
@@ -116,7 +139,7 @@ class SheddingPhoto(Base):
     shedding_log: Mapped[SheddingLog] = relationship(back_populates="photos")
 
 
-class EnvironmentLog(Base):
+class EnvironmentLog(Base, TimestampMixin):
     __tablename__ = "environment_logs"
 
     id: Mapped[uuid.UUID] = _uuid_pk()
@@ -129,7 +152,7 @@ class EnvironmentLog(Base):
     gecko: Mapped[Gecko] = relationship(back_populates="environment_logs")
 
 
-class EggLog(Base):
+class EggLog(Base, TimestampMixin):
     __tablename__ = "egg_logs"
 
     id: Mapped[uuid.UUID] = _uuid_pk()
@@ -137,6 +160,26 @@ class EggLog(Base):
     date: Mapped[date] = mapped_column(Date, nullable=False)
     egg_count: Mapped[int] = mapped_column(Integer, nullable=False)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     gecko: Mapped[Gecko] = relationship(back_populates="egg_logs")
+
+
+class AuditLog(Base):
+    """所有業務資料表（見 TimestampMixin 的表）新增/修改/刪除時的稽核紀錄。
+
+    由 `app/audit.py` 的 SQLAlchemy `before_flush` event listener 自動寫入，
+    不需（也不應）手動建立。`diff` 只記錄異動欄位：
+    - insert：每個欄位 {"old": null, "new": 新值}
+    - update：只包含真的變動的欄位 {"old": 舊值, "new": 新值}
+    - delete（硬刪除，例如 cascade delete-orphan）：每個欄位 {"old": 舊值, "new": null}
+    """
+
+    __tablename__ = "audit_logs"
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    table_name: Mapped[str] = mapped_column(String, nullable=False)
+    record_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    action: Mapped[str] = mapped_column(AuditActionEnum, nullable=False)
+    diff: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    changed_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    changed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
