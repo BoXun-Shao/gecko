@@ -15,7 +15,7 @@
       geckos / daily-logs / shedding-logs（含照片上傳）/ environment-logs / egg-logs 全部 CRUD + 軟刪除，見 [docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md](docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md)、[backend/README.md](backend/README.md)
 - [ ] P0 前端重寫：React + Mantine + Recharts，呼叫新 API，取代 localStorage 操作邏輯
       需求書：[docs/requirements/2026-08-30-前端重寫規劃.md](docs/requirements/2026-08-30-前端重寫規劃.md)
-      里程碑：M1 骨架+守宮CRUD → M2 進食分頁籤 → M3 蛻皮分頁籤 → M4 環境分頁籤 → M5 下蛋分頁籤 → M6 功能對等驗證
+      里程碑：[x] M1 骨架+守宮CRUD → [ ] M2 進食分頁籤 → [ ] M3 蛻皮分頁籤 → [ ] M4 環境分頁籤 → [ ] M5 下蛋分頁籤 → [ ] M6 功能對等驗證
 - [ ] P1 照片改存後端伺服器本地檔案系統，資料表僅存路徑
 - [x] P1 一次性資料遷移工具：讀現有 Excel 匯出檔 → 寫入 PostgreSQL
       需求書：[docs/requirements/2026-08-25-excel資料遷移.md](docs/requirements/2026-08-25-excel資料遷移.md)
