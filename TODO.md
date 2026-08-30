@@ -15,7 +15,7 @@
       geckos / daily-logs / shedding-logs（含照片上傳）/ environment-logs / egg-logs 全部 CRUD + 軟刪除，見 [docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md](docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md)、[backend/README.md](backend/README.md)
 - [ ] P0 前端重寫：React + Mantine + Recharts，呼叫新 API，取代 localStorage 操作邏輯
       需求書：[docs/requirements/2026-08-30-前端重寫規劃.md](docs/requirements/2026-08-30-前端重寫規劃.md)
-      里程碑：[x] M1 骨架+守宮CRUD → [ ] M2 進食分頁籤 → [ ] M3 蛻皮分頁籤 → [ ] M4 環境分頁籤 → [ ] M5 下蛋分頁籤 → [ ] M6 功能對等驗證
+      里程碑：[x] M1 骨架+守宮CRUD → [x] M2 進食分頁籤 → [ ] M3 蛻皮分頁籤 → [ ] M4 環境分頁籤 → [ ] M5 下蛋分頁籤 → [ ] M6 功能對等驗證
 - [ ] P1 照片改存後端伺服器本地檔案系統，資料表僅存路徑
 - [x] P1 一次性資料遷移工具：讀現有 Excel 匯出檔 → 寫入 PostgreSQL
       需求書：[docs/requirements/2026-08-25-excel資料遷移.md](docs/requirements/2026-08-25-excel資料遷移.md)
@@ -41,9 +41,9 @@
 
 ## Chore
 
-- [ ] P1 進食狀態改為單一 `status` 列舉（fed / partial / refused / skipped）
+- [x] P1 進食狀態改為單一 `status` 列舉（fed / partial / refused / skipped）
       需求書：[docs/requirements/2026-08-23-紀錄功能重新規劃.md](docs/requirements/2026-08-23-紀錄功能重新規劃.md)
-      遷移規則（舊 localStorage 資料 → 新 status，經由上方一次性資料遷移工具帶入 PostgreSQL）見需求書
+      後端 schema/遷移工具已完成；前端 M2 進食表單新增狀態四態選擇器，全部串接完畢
 - [x] P0 全部業務資料表補齊 `created_at`/`updated_at`/`is_deleted`/`deleted_at`，新增 `audit_logs` 全域稽核紀錄機制（ORM event listener，只記變動欄位）
       需求書：[docs/requirements/2026-08-24-審計軟刪除機制.md](docs/requirements/2026-08-24-審計軟刪除機制.md)
       `users.email`、`daily_logs(gecko_id, date)` 的 UNIQUE 限制改為 partial index（`WHERE is_deleted = false`）
