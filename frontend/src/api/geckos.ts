@@ -21,13 +21,8 @@ export function deleteGecko(id: string) {
   return api.del<void>(`/geckos/${id}`);
 }
 
-export async function uploadGeckoPhoto(id: string, file: File) {
+export function uploadGeckoPhoto(id: string, file: File) {
   const form = new FormData();
   form.append("file", file);
-  const res = await fetch(
-    `${import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000"}/geckos/${id}/photo`,
-    { method: "POST", body: form },
-  );
-  if (!res.ok) throw new Error(`上傳照片失敗（${res.status}）`);
-  return (await res.json()) as GeckoRead;
+  return api.post<GeckoRead>(`/geckos/${id}/photo`, form);
 }

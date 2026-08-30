@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Container, Loader, Stack, Text, Title } from "@mantine/core";
+import { Alert, Button, Container, Loader, Stack, Text, Title } from "@mantine/core";
 import { Navigate, Route, Routes, useMatch, useNavigate } from "react-router-dom";
 import { RosterBar } from "./components/roster/RosterBar";
 import { GeckoFormModal } from "./components/gecko/GeckoFormModal";
@@ -22,7 +22,7 @@ function RootRedirect({ firstGeckoId }: { firstGeckoId: string }) {
 }
 
 export default function App() {
-  const { data: geckos, isLoading } = useGeckos();
+  const { data: geckos, isLoading, isError } = useGeckos();
   const [addOpen, setAddOpen] = useState(false);
   const navigate = useNavigate();
   const match = useMatch("/geckos/:geckoId/*");
@@ -41,6 +41,10 @@ export default function App() {
 
       {isLoading ? (
         <Loader color="clay" />
+      ) : isError ? (
+        <Alert color="red" title="無法連線到後端">
+          請確認 API 伺服器（{import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000"}）是否已啟動。
+        </Alert>
       ) : (
         <>
           <RosterBar

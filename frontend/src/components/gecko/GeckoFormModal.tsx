@@ -112,22 +112,30 @@ export function GeckoFormModal({ opened, onClose, gecko, onSaved }: GeckoFormMod
       safe_humidity_max: values.safeHumidityMax === "" ? null : Number(values.safeHumidityMax),
     };
 
+    let saved: GeckoRead;
     try {
-      let saved: GeckoRead;
-      if (gecko) {
-        saved = await updateGecko.mutateAsync({ id: gecko.id, body: payload });
-      } else {
-        saved = await createGecko.mutateAsync(payload);
-      }
-      if (pendingPhotoRef.current) {
-        saved = await uploadPhoto.mutateAsync({ id: saved.id, file: pendingPhotoRef.current });
-      }
-      notifications.show({ message: gecko ? "已更新守宮資料" : "已新增守宮", color: "green" });
-      onSaved?.(saved);
-      onClose();
+      saved = gecko
+        ? await updateGecko.mutateAsync({ id: gecko.id, body: payload })
+        : await createGecko.mutateAsync(payload);
     } catch {
       notifications.show({ message: "儲存失敗，請再試一次", color: "red" });
+      return;
     }
+
+    if (pendingPhotoRef.current) {
+      try {
+        saved = await uploadPhoto.mutateAsync({ id: saved.id, file: pendingPhotoRef.current });
+      } catch {
+        notifications.show({ message: "守宮資料已儲存，但照片上傳失敗，可再次編輯重新上傳", color: "yellow" });
+        onSaved?.(saved);
+        onClose();
+        return;
+      }
+    }
+
+    notifications.show({ message: gecko ? "已更新守宮資料" : "已新增守宮", color: "green" });
+    onSaved?.(saved);
+    onClose();
   });
 
   const saving = createGecko.isPending || updateGecko.isPending || uploadPhoto.isPending;
@@ -157,8 +165,20 @@ export function GeckoFormModal({ opened, onClose, gecko, onSaved }: GeckoFormMod
           />
           <TextInput label="品系" {...form.getInputProps("morph")} />
           <Group grow>
-            <DateInput label="出生日期" valueFormat="YYYY-MM-DD" clearable {...form.getInputProps("birthDate")} />
-            <DateInput label="入手日期" valueFormat="YYYY-MM-DD" clearable {...form.getInputProps("acquiredDate")} />
+            <DateInput
+              label="出生日期"
+              valueFormat="YYYY-MM-DD"
+              clearable
+              maxDate={new Date()}
+              {...form.getInputProps("birthDate")}
+            />
+            <DateInput
+              label="入手日期"
+              valueFormat="YYYY-MM-DD"
+              clearable
+              maxDate={new Date()}
+              {...form.getInputProps("acquiredDate")}
+            />
           </Group>
           <Stack gap={4}>
             <label style={{ fontSize: 14, fontWeight: 500 }}>餵食頻率</label>

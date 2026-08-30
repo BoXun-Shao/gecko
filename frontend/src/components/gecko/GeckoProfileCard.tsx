@@ -11,7 +11,7 @@ const GENDER_LABEL: Record<GeckoRead["gender"], string> = {
 function daysBetween(from: string, to: Date): number {
   const a = new Date(`${from}T00:00:00`);
   const ms = to.getTime() - a.getTime();
-  return Math.floor(ms / 86400000);
+  return Math.max(0, Math.floor(ms / 86400000));
 }
 
 interface GeckoProfileCardProps {
