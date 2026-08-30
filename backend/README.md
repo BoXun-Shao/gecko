@@ -48,6 +48,20 @@ python -m scripts.migrate_excel "路徑/肥尾日誌_2026-08-24.xlsx"
 
 細節與決策見 [docs/requirements/2026-08-25-excel資料遷移.md](../docs/requirements/2026-08-25-excel資料遷移.md)。
 
+## API
+
+CRUD REST API 已實作，涵蓋守宮基本資料與四種紀錄類型，全部掛在 seed 的固定預設 user 底下（本階段未實作登入）：
+
+- `geckos`：CRUD + `POST /geckos/{id}/photo`（上傳大頭照）
+- `geckos/{gecko_id}/daily-logs`、`daily-logs/{id}`：進食（`status`：`fed`/`partial`/`refused`/`skipped`）／排便／體重
+- `geckos/{gecko_id}/shedding-logs`、`shedding-logs/{id}`：蛻皮紀錄 + `POST /shedding-logs/{id}/photos`（可上傳多張照片）
+- `geckos/{gecko_id}/environment-logs`、`environment-logs/{id}`：環境溫濕度
+- `geckos/{gecko_id}/egg-logs`、`egg-logs/{id}`：下蛋紀錄
+
+所有 DELETE 皆為軟刪除（`is_deleted`/`deleted_at`）；刪除 `geckos` 會 cascade 軟刪除其底下所有紀錄，決策見 [docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md](../docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md)。照片存在 `backend/uploads/`，由 `/uploads` 靜態路徑提供。
+
+啟動後可到 http://localhost:8000/docs 看完整、可互動的 API 文件（含所有 endpoint 與欄位定義）。
+
 ## 現況
 
-目前只有資料庫骨架（7 張表）與一個 `/health` 健康檢查端點，尚未實作實際的 CRUD API。下一步依 [TODO.md](../TODO.md) Epic「資料庫化與商用架構」的 Phase 1 → 2 順序進行。
+資料庫骨架（7 張表）與 CRUD API 已完成。下一步依 [TODO.md](../TODO.md) Epic「資料庫化與商用架構」進行 React 前端重寫。

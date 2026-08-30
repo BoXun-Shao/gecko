@@ -11,12 +11,15 @@
 - Upsert，可安全重複執行：
     - 守宮用「名字」比對（舊版 uid() 不是合法 UUID，無法沿用舊 ID）。
     - 每日紀錄用 (gecko_id, date) 比對，對應 daily_logs 的 partial unique index。
-- 照片：base64 → 解碼寫檔到 backend/uploads/geckos/<gecko_id>.<ext>，DB 只存相對路徑。
-- 狀態：直接讀「狀態」欄位文字（進食/沒餵/拒食），不重新用 qty 推導：
+- 照片：base64 → 解碼寫檔到 backend/uploads/geckos/<gecko_id>.<ext>，DB 存從網站根目錄起算的絕對路徑
+  （`/uploads/geckos/...`），與 API 上傳照片端點（`app/routers/geckos.py`）採用同一慣例。
+- 狀態：只用「狀態」欄位文字判斷「沒餵」（skipped），進食／拒食則用 qty > 0 判斷，兩者在正常匯出檔案中
+  必然一致（舊版 index.html 匯出時，狀態文字本來就是由 qty 算出來的，見需求書）：
     - 沒餵 → status=skipped，qty=null（非餵食日，qty 沒有意義）
     - 拒食 → status=refused，qty=0（有餵食但吃 0，qty=0 是有意義的資訊）
     - 進食 → status=fed，qty=Excel 原始數字
     - 不會產生 partial（舊資料沒有部分進食的判斷依據，符合既有需求書決策）
+    - 若使用者手動編輯過 Excel，讓「狀態」文字與 qty 不一致，這裡會以 qty 為準，不會偵測或警告此衝突
 """
 from __future__ import annotations
 
@@ -99,7 +102,7 @@ def _save_photo(gecko_id, data_uri: str | None) -> str | None:
     UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
     file_path = UPLOADS_DIR / f"{gecko_id}.{ext}"
     file_path.write_bytes(raw)
-    return f"uploads/geckos/{gecko_id}.{ext}"
+    return f"/uploads/geckos/{gecko_id}.{ext}"
 
 
 def _find_gecko(db, name: str) -> Gecko | None:

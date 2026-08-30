@@ -78,6 +78,9 @@ class Gecko(Base, TimestampMixin):
     safe_humidity_min: Mapped[float | None] = mapped_column(Numeric, nullable=True)
     safe_humidity_max: Mapped[float | None] = mapped_column(Numeric, nullable=True)
 
+    # 新增下面任何一個 relationship 時，記得同步更新 app/deletion.py 的
+    # soft_delete_gecko：軟刪除 cascade 是手動實作（見該檔案文件字串），
+    # 不會自動套用到新的 relationship。
     user: Mapped[User] = relationship(back_populates="geckos")
     daily_logs: Mapped[list["DailyLog"]] = relationship(back_populates="gecko", cascade="all, delete-orphan")
     shedding_logs: Mapped[list["SheddingLog"]] = relationship(back_populates="gecko", cascade="all, delete-orphan")

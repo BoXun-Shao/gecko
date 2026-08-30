@@ -11,7 +11,8 @@
 - [x] P0 後端專案骨架：FastAPI + PostgreSQL 連線、user/gecko/log 資料表 migration、seed 預設 user
       性別欄位（公/母/未知）與下蛋紀錄（日期＋蛋數＋備註）已一併納入 schema，見 [docs/requirements/2026-08-24-性別與下蛋紀錄.md](docs/requirements/2026-08-24-性別與下蛋紀錄.md)
       已於本機驗證：`docker compose up -d` 啟動 Postgres → `alembic upgrade head` 建立全部 7 張表 → `python -m app.seed` 寫入預設 user → `uvicorn` 啟動後 `/health` 回應正常
-- [ ] P0 API endpoints：涵蓋現有功能 + 下方「紀錄功能重新規劃」所有欄位（進食 status、蛻皮、溫濕度、下蛋）
+- [x] P0 API endpoints：涵蓋現有功能 + 下方「紀錄功能重新規劃」所有欄位（進食 status、蛻皮、溫濕度、下蛋）
+      geckos / daily-logs / shedding-logs（含照片上傳）/ environment-logs / egg-logs 全部 CRUD + 軟刪除，見 [docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md](docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md)、[backend/README.md](backend/README.md)
 - [ ] P0 前端重寫：React 專案，呼叫新 API，取代 localStorage 操作邏輯
 - [ ] P1 照片改存後端伺服器本地檔案系統，資料表僅存路徑
 - [x] P1 一次性資料遷移工具：讀現有 Excel 匯出檔 → 寫入 PostgreSQL
@@ -44,8 +45,8 @@
 - [x] P0 全部業務資料表補齊 `created_at`/`updated_at`/`is_deleted`/`deleted_at`，新增 `audit_logs` 全域稽核紀錄機制（ORM event listener，只記變動欄位）
       需求書：[docs/requirements/2026-08-24-審計軟刪除機制.md](docs/requirements/2026-08-24-審計軟刪除機制.md)
       `users.email`、`daily_logs(gecko_id, date)` 的 UNIQUE 限制改為 partial index（`WHERE is_deleted = false`）
-- [ ] P1 CRUD delete API 開發時，決定父表軟刪除時子表（如 `geckos` → `daily_logs`/`shedding_logs` 等）要不要一併 cascade 軟刪除；目前 ORM 仍是 `cascade="all, delete-orphan"`（硬刪除子表），與軟刪除語意不一致，需另開需求訪談
-      需求書：[docs/requirements/2026-08-24-審計軟刪除機制.md](docs/requirements/2026-08-24-審計軟刪除機制.md)（已知限制章節）
+- [x] 父表軟刪除時子表 cascade 行為已決策：`geckos` 軟刪除時連帶軟刪除所有子紀錄，API 層實作（非 ORM relationship cascade）
+      需求書：[docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md](docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md)
 
 ## Bug
 

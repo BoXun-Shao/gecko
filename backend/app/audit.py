@@ -11,8 +11,10 @@
 已知限制：`before_flush` 在 SQLAlchemy 判斷 `cascade="all, delete-orphan"`
 孤兒物件之前就已觸發，所以「把子物件從關聯集合移除（例如
 `gecko.daily_logs.remove(log)`）」造成的刪除，目前不會進到這裡的
-`session.deleted` 裡、也就不會有稽核紀錄。專案目前還沒有任何 delete API，
-之後實作刪除功能、決定 cascade 軟刪除的行為時（見 TODO.md）要一併處理這個缺口。
+`session.deleted` 裡、也就不會有稽核紀錄。`app/deletion.py` 的 delete API 刻意避開了
+這個缺口：一律用屬性賦值（設定 `is_deleted`/`deleted_at`）而不是從 collection 移除物件，
+所以會落在 `session.dirty`（走 update 分支）而不是 `session.deleted`，稽核紀錄照常寫入。
+若未來新增真正的硬刪除路徑，才需要重新面對這裡描述的缺口。
 """
 from __future__ import annotations
 
