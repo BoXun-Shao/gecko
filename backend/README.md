@@ -38,6 +38,16 @@ uvicorn app.main:app --reload
 python -m scripts.generate_schema_doc
 ```
 
+## 匯入舊版 Excel 資料
+
+把 `index.html` 匯出的 Excel 檔匯入資料庫（可重複執行，會 upsert 不會產生重複資料）：
+
+```bash
+python -m scripts.migrate_excel "路徑/肥尾日誌_2026-08-24.xlsx"
+```
+
+細節與決策見 [docs/requirements/2026-08-25-excel資料遷移.md](../docs/requirements/2026-08-25-excel資料遷移.md)。
+
 ## 現況
 
 目前只有資料庫骨架（7 張表）與一個 `/health` 健康檢查端點，尚未實作實際的 CRUD API。下一步依 [TODO.md](../TODO.md) Epic「資料庫化與商用架構」的 Phase 1 → 2 順序進行。

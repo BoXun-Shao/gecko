@@ -14,7 +14,9 @@
 - [ ] P0 API endpoints：涵蓋現有功能 + 下方「紀錄功能重新規劃」所有欄位（進食 status、蛻皮、溫濕度、下蛋）
 - [ ] P0 前端重寫：React 專案，呼叫新 API，取代 localStorage 操作邏輯
 - [ ] P1 照片改存後端伺服器本地檔案系統，資料表僅存路徑
-- [ ] P1 一次性資料遷移工具：讀現有 Excel 匯出檔 → 寫入 PostgreSQL
+- [x] P1 一次性資料遷移工具：讀現有 Excel 匯出檔 → 寫入 PostgreSQL
+      需求書：[docs/requirements/2026-08-25-excel資料遷移.md](docs/requirements/2026-08-25-excel資料遷移.md)
+      用法：於 `backend/` 目錄執行 `python -m scripts.migrate_excel <xlsx 路徑>`，可重複執行（upsert）
 - [ ] P1 Excel 匯出/匯入功能於新架構下重新實作，轉型為備份/匯出用途
 - [ ] P1 功能對等驗證後，淘汰/移除舊版 `index.html`
 - [ ] P2 同步更新 [CLAUDE.md](CLAUDE.md)「專案性質」章節與品質關卡（新增後端 API 測試）
