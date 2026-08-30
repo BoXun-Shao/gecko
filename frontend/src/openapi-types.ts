@@ -350,7 +350,7 @@ export interface components {
         /** DailyLogUpdate */
         DailyLogUpdate: {
             /** Date */
-            date?: null;
+            date?: string | null;
             /** Status */
             status?: ("fed" | "partial" | "refused" | "skipped") | null;
             /** Qty */
@@ -413,7 +413,7 @@ export interface components {
         /** EggLogUpdate */
         EggLogUpdate: {
             /** Date */
-            date?: null;
+            date?: string | null;
             /** Egg Count */
             egg_count?: number | null;
             /** Note */
@@ -637,7 +637,7 @@ export interface components {
         /** SheddingLogUpdate */
         SheddingLogUpdate: {
             /** Date */
-            date?: null;
+            date?: string | null;
             /** Note */
             note?: string | null;
         };

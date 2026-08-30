@@ -1499,7 +1499,15 @@
       "DailyLogUpdate": {
         "properties": {
           "date": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Date"
           },
           "status": {
@@ -1677,7 +1685,15 @@
       "EggLogUpdate": {
         "properties": {
           "date": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Date"
           },
           "egg_count": {
@@ -2357,7 +2373,15 @@
       "SheddingLogUpdate": {
         "properties": {
           "date": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Date"
           },
           "note": {

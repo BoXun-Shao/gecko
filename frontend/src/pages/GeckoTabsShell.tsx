@@ -2,6 +2,7 @@ import { Tabs } from "@mantine/core";
 import { useNavigate, useParams } from "react-router-dom";
 import type { GeckoRead } from "../api/types";
 import { GeckoOverviewTab } from "./GeckoOverviewTab";
+import { GeckoFeedingTab } from "./GeckoFeedingTab";
 import { ComingSoonTab } from "./ComingSoonTab";
 
 const TABS = [
@@ -35,7 +36,7 @@ export function GeckoTabsShell({ geckos }: { geckos: GeckoRead[] }) {
         <GeckoOverviewTab gecko={gecko} />
       </Tabs.Panel>
       <Tabs.Panel value="feeding" pt="md">
-        <ComingSoonTab label="進食" />
+        <GeckoFeedingTab gecko={gecko} />
       </Tabs.Panel>
       <Tabs.Panel value="shedding" pt="md">
         <ComingSoonTab label="蛻皮" />
