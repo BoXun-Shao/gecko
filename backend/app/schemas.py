@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime, timezone
+from datetime import date as _Date
 from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -75,7 +76,9 @@ class DailyLogCreate(BaseModel):
 
 
 class DailyLogUpdate(BaseModel):
-    date: Optional[date] = None
+    # _Date（非 date）：欄位名稱與型別名稱相同時，pydantic 解析 forward ref 會把 `date`
+    # 解析成這個欄位自己的預設值 None，型別退化成 NoneType，導致 PATCH 這個欄位必壞。
+    date: Optional[_Date] = None
     status: Optional[FeedingStatusLiteral] = None
     qty: Optional[int] = None
     food: Optional[str] = None
@@ -111,7 +114,7 @@ class SheddingLogCreate(BaseModel):
 
 
 class SheddingLogUpdate(BaseModel):
-    date: Optional[date] = None
+    date: Optional[_Date] = None  # 同 DailyLogUpdate.date，避免欄位名稱與型別名稱衝突
     note: Optional[str] = None
 
 
@@ -175,7 +178,7 @@ class EggLogCreate(BaseModel):
 
 
 class EggLogUpdate(BaseModel):
-    date: Optional[date] = None
+    date: Optional[_Date] = None  # 同 DailyLogUpdate.date，避免欄位名稱與型別名稱衝突
     egg_count: Optional[int] = None
     note: Optional[str] = None
 
