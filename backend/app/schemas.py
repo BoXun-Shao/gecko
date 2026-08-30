@@ -3,7 +3,7 @@ from datetime import date, datetime, timezone
 from datetime import date as _Date
 from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 GenderLiteral = Literal["male", "female", "unknown"]
 FeedingStatusLiteral = Literal["fed", "partial", "refused", "skipped"]
@@ -136,6 +136,15 @@ class SheddingLogRead(BaseModel):
     photos: list[SheddingPhotoRead]
     created_at: datetime
     updated_at: datetime
+
+    @field_validator("photos", mode="before")
+    @classmethod
+    def _exclude_deleted_photos(cls, value):
+        # `SheddingLog.photos` 這個 ORM relationship 本身沒有過濾 is_deleted
+        # （改用 primaryjoin 過濾會讓 cascade="all, delete-orphan" 誤判軟刪除的
+        # 照片為「被移出 collection」而觸發硬刪除，見 fix commit），所以在序列化
+        # 這一層過濾掉已軟刪除的照片，不要動 ORM 端的 relationship 定義。
+        return [p for p in value if not getattr(p, "is_deleted", False)]
 
 
 # ---- EnvironmentLog ----

@@ -41,9 +41,9 @@
 
 ## Chore
 
-- [ ] P0 建立測試基礎建設：規範見 [TESTING.md](TESTING.md)
-      後端：安裝 pytest + httpx，設定測試資料庫，補齊現有 5 組資源的 API 測試
-      前端：安裝 vitest + testing-library + playwright，補齊 M1（geckos）與 M2（daily-logs、圖表工具函式）現有邏輯的測試
+- [x] P0 建立測試基礎建設：規範見 [TESTING.md](TESTING.md)
+      後端：pytest + httpx + 獨立 gecko_test 資料庫，35 個測試涵蓋現有 5 組資源；過程中修好 2 個真的 bug（date 欄位 PATCH 422、已刪除蛻皮照片仍出現在回應）
+      前端：vitest（29 個 utils 測試）+ playwright（2 條 e2e golden path：守宮 CRUD、進食紀錄 CRUD）
       之後 M3–M6 都要隨功能一起補測試，不要留到最後
 - [x] P1 進食狀態改為單一 `status` 列舉（fed / partial / refused / skipped）
       需求書：[docs/requirements/2026-08-23-紀錄功能重新規劃.md](docs/requirements/2026-08-23-紀錄功能重新規劃.md)

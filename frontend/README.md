@@ -29,6 +29,16 @@ npm run codegen
 
 會依序抓取 `http://localhost:8000/openapi.json` 存成 `openapi.json`，再用 `openapi-typescript` 產生 `src/openapi-types.ts`（自動產生，勿手動修改），兩者一併 commit。
 
+## 測試
+
+測試規範見根目錄 [TESTING.md](../TESTING.md)。
+
+```bash
+npm run test       # Vitest，跑 src/**/*.test.ts(x) 的 unit test
+npm run test:watch # Vitest watch 模式
+npm run test:e2e   # Playwright smoke test（e2e/），需要 backend 已啟動；frontend dev server 沒開會自動幫你開
+```
+
 ## 其他指令
 
 ```bash

@@ -48,6 +48,17 @@ python -m scripts.migrate_excel "路徑/肥尾日誌_2026-08-24.xlsx"
 
 細節與決策見 [docs/requirements/2026-08-25-excel資料遷移.md](../docs/requirements/2026-08-25-excel資料遷移.md)。
 
+## 測試
+
+測試規範見根目錄 [TESTING.md](../TESTING.md)。安裝測試相依套件、跑測試：
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+測試會自動在同一個 Postgres 容器內建立/使用獨立的 `gecko_test` 資料庫（不影響開發用的 `gecko` 資料庫），每個測試前自動清空資料表並重建預設 user，測試之間互不干擾。
+
 ## API
 
 CRUD REST API 已實作，涵蓋守宮基本資料與四種紀錄類型，全部掛在 seed 的固定預設 user 底下（本階段未實作登入）：

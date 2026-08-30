@@ -53,10 +53,10 @@
 
 本文件是 [CLAUDE.md](CLAUDE.md)「完成一項變更前的品質關卡」第 1 項的具體化：新架構下，自動化 unit/smoke test 是主要防線；瀏覽器手動測試在自動化測試建立後仍建議在功能完成時走一次 golden path 作為最後確認，但不再是唯一手段。
 
-## 待辦：建立測試基礎建設
+## 測試基礎建設現況（2026-08-30 已補齊 M1/M2）
 
-目前專案還沒有任何測試框架與測試案例（截至前端 M2 里程碑）。詳見 [TODO.md](TODO.md) 對應項目：
-
-- 後端安裝 `pytest`、`httpx`，設定測試資料庫，補齊現有 5 組資源（geckos／daily-logs／shedding-logs／environment-logs／egg-logs）的 API 測試。
-- 前端安裝 `vitest`、`@testing-library/react`、`@playwright/test`，設定對應 config，補齊 M1（geckos）與 M2（daily-logs、圖表工具函式）現有邏輯的測試。
+- **後端**：`backend/tests/`，pytest + FastAPI TestClient，獨立 `gecko_test` 資料庫，涵蓋 geckos／daily-logs／shedding-logs（含照片上傳）／environment-logs／egg-logs 的 CRUD、軟刪除、cascade、409 衝突、audit log 稽核紀錄，共 35 個測試案例。過程中額外抓到並修好兩個真的 bug：
+  1. `DailyLogUpdate`/`SheddingLogUpdate`/`EggLogUpdate` 的 `date` 欄位因為欄位名稱與型別名稱相同，被 pydantic 解析成 `NoneType`，PATCH 帶 `date` 一律 422（`app/schemas.py`）。
+  2. `SheddingLogRead.photos` 直接從未過濾的 ORM relationship 序列化，軟刪除的照片不會消失（`app/schemas.py`，改用 Pydantic `field_validator` 過濾，刻意不動 ORM relationship 定義，避免誤觸 `cascade="all, delete-orphan"`）。
+- **前端**：Vitest 涵蓋 `src/utils/`（`dates.ts`／`feedingBand.ts`／`feedingBuckets.ts`／`feedingConstants.ts`）純函式，共 29 個測試案例；Playwright（`frontend/e2e/`）涵蓋守宮新增/編輯與進食紀錄新增/編輯/刪除（含統計列、斑帶圖、圖表同步）兩條 golden path。
 - 之後 M3–M5（蛻皮／環境／下蛋）與 M6（功能對等驗證）都要比照本文件規範，隨功能一起補測試，不要留到最後才補。
