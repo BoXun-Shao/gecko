@@ -4,7 +4,7 @@ import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { assetUrl } from "../../api/client";
-import { useCreateGecko, useUpdateGecko, useUploadGeckoPhoto } from "../../hooks/useGeckos";
+import { useCreateGecko, useDeleteGecko, useUpdateGecko, useUploadGeckoPhoto } from "../../hooks/useGeckos";
 import type { GeckoRead } from "../../api/types";
 import { IntervalStepper } from "../shared/IntervalStepper";
 import { PhotoUpload } from "../shared/PhotoUpload";
@@ -72,12 +72,14 @@ interface GeckoFormModalProps {
   onClose: () => void;
   gecko?: GeckoRead;
   onSaved?: (gecko: GeckoRead) => void;
+  onDeleted?: () => void;
 }
 
-export function GeckoFormModal({ opened, onClose, gecko, onSaved }: GeckoFormModalProps) {
+export function GeckoFormModal({ opened, onClose, gecko, onSaved, onDeleted }: GeckoFormModalProps) {
   const createGecko = useCreateGecko();
   const updateGecko = useUpdateGecko();
   const uploadPhoto = useUploadGeckoPhoto();
+  const deleteGecko = useDeleteGecko();
 
   const form = useForm<FormValues>({
     initialValues: emptyValues(),
@@ -138,6 +140,19 @@ export function GeckoFormModal({ opened, onClose, gecko, onSaved }: GeckoFormMod
     onClose();
   });
 
+  async function handleDelete() {
+    if (!gecko) return;
+    if (!window.confirm(`刪除「${gecko.name}」及其所有紀錄？此動作無法復原。`)) return;
+    try {
+      await deleteGecko.mutateAsync(gecko.id);
+      notifications.show({ message: "已刪除", color: "green" });
+      onDeleted?.();
+      onClose();
+    } catch {
+      notifications.show({ message: "刪除失敗，請再試一次", color: "red" });
+    }
+  }
+
   const saving = createGecko.isPending || updateGecko.isPending || uploadPhoto.isPending;
 
   return (
@@ -196,13 +211,22 @@ export function GeckoFormModal({ opened, onClose, gecko, onSaved }: GeckoFormMod
             <NumberInput label="安全濕度上限 (%)" {...form.getInputProps("safeHumidityMax")} />
           </Group>
           <Textarea label="備註" autosize minRows={2} {...form.getInputProps("note")} />
-          <Group justify="flex-end" mt="sm">
-            <Button variant="subtle" onClick={onClose} type="button">
-              取消
-            </Button>
-            <Button type="submit" loading={saving} color="clay">
-              儲存
-            </Button>
+          <Group justify="space-between" mt="sm">
+            {gecko ? (
+              <Button variant="subtle" color="red" onClick={handleDelete} type="button" loading={deleteGecko.isPending}>
+                刪除這隻
+              </Button>
+            ) : (
+              <div />
+            )}
+            <Group>
+              <Button variant="subtle" onClick={onClose} type="button">
+                取消
+              </Button>
+              <Button type="submit" loading={saving} color="clay">
+                儲存
+              </Button>
+            </Group>
           </Group>
         </Stack>
       </form>

@@ -29,8 +29,15 @@ test.describe("守宮 CRUD golden path", () => {
     await page.getByRole("button", { name: "儲存" }).click();
     await expect(page.getByRole("heading", { name: "E2E-已編輯" })).toBeVisible();
 
-    // 刪除（直接呼叫 API 清理測試資料，畫面上目前沒有刪除守宮的按鈕）
-    const res = await request.delete(`${API_BASE_URL}/geckos/${geckoId}`);
-    expect(res.status()).toBe(204);
+    // 刪除：透過畫面上的「刪除這隻」按鈕
+    page.on("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "編輯資料與照片" }).click();
+    await page.getByRole("button", { name: "刪除這隻" }).click();
+    await expect(page.getByText("已刪除").first()).toBeVisible();
+    await expect(page).not.toHaveURL(new RegExp(`/geckos/${geckoId}/`));
+
+    // 確認後端也真的刪掉了（軟刪除，GET 應該 404）
+    const getRes = await request.get(`${API_BASE_URL}/geckos/${geckoId}`);
+    expect(getRes.status()).toBe(404);
   });
 });

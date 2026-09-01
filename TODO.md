@@ -13,10 +13,12 @@
       已於本機驗證：`docker compose up -d` 啟動 Postgres → `alembic upgrade head` 建立全部 7 張表 → `python -m app.seed` 寫入預設 user → `uvicorn` 啟動後 `/health` 回應正常
 - [x] P0 API endpoints：涵蓋現有功能 + 下方「紀錄功能重新規劃」所有欄位（進食 status、蛻皮、溫濕度、下蛋）
       geckos / daily-logs / shedding-logs（含照片上傳）/ environment-logs / egg-logs 全部 CRUD + 軟刪除，見 [docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md](docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md)、[backend/README.md](backend/README.md)
-- [ ] P0 前端重寫：React + Mantine + Recharts，呼叫新 API，取代 localStorage 操作邏輯
+- [x] P0 前端重寫：React + Mantine + Recharts，呼叫新 API，取代 localStorage 操作邏輯
       需求書：[docs/requirements/2026-08-30-前端重寫規劃.md](docs/requirements/2026-08-30-前端重寫規劃.md)
-      里程碑：[x] M1 骨架+守宮CRUD → [x] M2 進食分頁籤 → [x] M3 蛻皮分頁籤 → [x] M4 環境分頁籤 → [x] M5 下蛋分頁籤 → [ ] M6 功能對等驗證
-- [ ] P1 照片改存後端伺服器本地檔案系統，資料表僅存路徑
+      里程碑：[x] M1 骨架+守宮CRUD → [x] M2 進食分頁籤 → [x] M3 蛻皮分頁籤 → [x] M4 環境分頁籤 → [x] M5 下蛋分頁籤 → [x] M6 功能對等驗證
+      M6 比對 `index.html` 時發現一個真的缺口並補上：`useDeleteGecko` hook 從 M1 就存在但畫面上沒有任何按鈕會呼叫它（舊版編輯守宮 modal 有「刪除這隻」）。已在 `GeckoFormModal` 補上刪除按鈕（含確認對話框），`gecko-crud.spec.ts` 改成走 UI 刪除而非直接呼叫 API。README 同步補上新架構啟動說明，版本號 v0.1 → v0.2。Excel 匯出/匯入、照片改存伺服器、`index.html` 淘汰仍是下方獨立 P1 項目，不在 M6 範圍內。
+- [x] P1 照片改存後端伺服器本地檔案系統，資料表僅存路徑
+      API endpoints 開發時已完成：`backend/uploads/geckos/`、`backend/uploads/shedding_photos/` 存實體檔案，`photo_path`/`file_path` 欄位只存路徑；M6 盤點時確認補勾
 - [x] P1 一次性資料遷移工具：讀現有 Excel 匯出檔 → 寫入 PostgreSQL
       需求書：[docs/requirements/2026-08-25-excel資料遷移.md](docs/requirements/2026-08-25-excel資料遷移.md)
       用法：於 `backend/` 目錄執行 `python -m scripts.migrate_excel <xlsx 路徑>`，可重複執行（upsert）
@@ -34,8 +36,9 @@
       前端 M3 蛻皮分頁籤已完成：表單（含日期驅動新增/編輯切換）、多張照片上傳/刪除、紀錄明細列表
 - [x] P1 新增環境溫濕度紀錄（每隻守宮各自登記溫度+濕度，可設安全範圍並顯示警示）
       前端 M4 環境分頁籤已完成：表單（量測時間/溫度/濕度/來源）、溫濕度趨勢圖（含安全範圍參考線）、超出範圍標示、未設定安全範圍時的提示
-- [ ] P1 性別欄位擴充為公/母/未知三選一
+- [x] P1 性別欄位擴充為公/母/未知三選一
       需求書：[docs/requirements/2026-08-24-性別與下蛋紀錄.md](docs/requirements/2026-08-24-性別與下蛋紀錄.md)
+      後端 schema 於 Phase 1 骨架時已納入；前端 M1 守宮表單（`GeckoFormModal`）三選一下拉選單已串接，M6 盤點時確認補勾
 - [x] P1 新增下蛋紀錄（日期＋蛋數＋備註，綁定守宮，不追蹤受精/孵化）
       需求書：同上
       前端 M5 下蛋分頁籤已完成：表單、紀錄明細列表、下蛋數走勢圖
