@@ -5,7 +5,7 @@ import { GeckoOverviewTab } from "./GeckoOverviewTab";
 import { GeckoFeedingTab } from "./GeckoFeedingTab";
 import { GeckoSheddingTab } from "./GeckoSheddingTab";
 import { GeckoEnvironmentTab } from "./GeckoEnvironmentTab";
-import { ComingSoonTab } from "./ComingSoonTab";
+import { GeckoEggTab } from "./GeckoEggTab";
 
 const TABS = [
   { value: "overview", label: "總覽" },
@@ -47,7 +47,7 @@ export function GeckoTabsShell({ geckos }: { geckos: GeckoRead[] }) {
         <GeckoEnvironmentTab gecko={gecko} />
       </Tabs.Panel>
       <Tabs.Panel value="egg" pt="md">
-        <ComingSoonTab label="下蛋" />
+        <GeckoEggTab gecko={gecko} />
       </Tabs.Panel>
     </Tabs>
   );

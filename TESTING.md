@@ -58,5 +58,5 @@
 - **後端**：`backend/tests/`，pytest + FastAPI TestClient，獨立 `gecko_test` 資料庫，涵蓋 geckos／daily-logs／shedding-logs（含照片上傳）／environment-logs／egg-logs 的 CRUD、軟刪除、cascade、409 衝突、audit log 稽核紀錄，共 35 個測試案例。過程中額外抓到並修好兩個真的 bug：
   1. `DailyLogUpdate`/`SheddingLogUpdate`/`EggLogUpdate` 的 `date` 欄位因為欄位名稱與型別名稱相同，被 pydantic 解析成 `NoneType`，PATCH 帶 `date` 一律 422（`app/schemas.py`）。
   2. `SheddingLogRead.photos` 直接從未過濾的 ORM relationship 序列化，軟刪除的照片不會消失（`app/schemas.py`，改用 Pydantic `field_validator` 過濾，刻意不動 ORM relationship 定義，避免誤觸 `cascade="all, delete-orphan"`）。
-- **前端**：Vitest 涵蓋 `src/utils/`（`dates.ts`／`feedingBand.ts`／`feedingBuckets.ts`／`feedingConstants.ts`／`environment.ts`）純函式，共 34 個測試案例；Playwright（`frontend/e2e/`）涵蓋守宮新增/編輯、進食紀錄新增/編輯/刪除（含統計列、斑帶圖、圖表同步）、蛻皮紀錄新增/編輯/刪除（含多張照片上傳/刪除）、環境紀錄新增/編輯/刪除（含未設定安全範圍提示、超出範圍標示）共四條 golden path。
-- 之後 M5（下蛋）與 M6（功能對等驗證）都要比照本文件規範，隨功能一起補測試，不要留到最後才補。
+- **前端**：Vitest 涵蓋 `src/utils/`（`dates.ts`／`feedingBand.ts`／`feedingBuckets.ts`／`feedingConstants.ts`／`environment.ts`／`eggStats.ts`）純函式，共 38 個測試案例；Playwright（`frontend/e2e/`）涵蓋守宮新增/編輯、進食紀錄新增/編輯/刪除（含統計列、斑帶圖、圖表同步）、蛻皮紀錄新增/編輯/刪除（含多張照片上傳/刪除）、環境紀錄新增/編輯/刪除（含未設定安全範圍提示、超出範圍標示）、下蛋紀錄新增/編輯/刪除（含明細列表與圖表同步）共五條 golden path。
+- 之後 M6（功能對等驗證）要比照本文件規範，隨功能一起補測試，不要留到最後才補。
