@@ -4,6 +4,7 @@ import type { GeckoRead } from "../api/types";
 import { GeckoOverviewTab } from "./GeckoOverviewTab";
 import { GeckoFeedingTab } from "./GeckoFeedingTab";
 import { GeckoSheddingTab } from "./GeckoSheddingTab";
+import { GeckoEnvironmentTab } from "./GeckoEnvironmentTab";
 import { ComingSoonTab } from "./ComingSoonTab";
 
 const TABS = [
@@ -43,7 +44,7 @@ export function GeckoTabsShell({ geckos }: { geckos: GeckoRead[] }) {
         <GeckoSheddingTab gecko={gecko} />
       </Tabs.Panel>
       <Tabs.Panel value="environment" pt="md">
-        <ComingSoonTab label="環境" />
+        <GeckoEnvironmentTab gecko={gecko} />
       </Tabs.Panel>
       <Tabs.Panel value="egg" pt="md">
         <ComingSoonTab label="下蛋" />

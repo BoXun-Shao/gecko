@@ -15,7 +15,7 @@
       geckos / daily-logs / shedding-logs（含照片上傳）/ environment-logs / egg-logs 全部 CRUD + 軟刪除，見 [docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md](docs/requirements/2026-08-30-軟刪除cascade決策與API開發啟動.md)、[backend/README.md](backend/README.md)
 - [ ] P0 前端重寫：React + Mantine + Recharts，呼叫新 API，取代 localStorage 操作邏輯
       需求書：[docs/requirements/2026-08-30-前端重寫規劃.md](docs/requirements/2026-08-30-前端重寫規劃.md)
-      里程碑：[x] M1 骨架+守宮CRUD → [x] M2 進食分頁籤 → [x] M3 蛻皮分頁籤 → [ ] M4 環境分頁籤 → [ ] M5 下蛋分頁籤 → [ ] M6 功能對等驗證
+      里程碑：[x] M1 骨架+守宮CRUD → [x] M2 進食分頁籤 → [x] M3 蛻皮分頁籤 → [x] M4 環境分頁籤 → [ ] M5 下蛋分頁籤 → [ ] M6 功能對等驗證
 - [ ] P1 照片改存後端伺服器本地檔案系統，資料表僅存路徑
 - [x] P1 一次性資料遷移工具：讀現有 Excel 匯出檔 → 寫入 PostgreSQL
       需求書：[docs/requirements/2026-08-25-excel資料遷移.md](docs/requirements/2026-08-25-excel資料遷移.md)
@@ -32,7 +32,8 @@
 
 - [x] P1 新增蛻皮紀錄（日期／備註／多張照片，綁定守宮）
       前端 M3 蛻皮分頁籤已完成：表單（含日期驅動新增/編輯切換）、多張照片上傳/刪除、紀錄明細列表
-- [ ] P1 新增環境溫濕度紀錄（每隻守宮各自登記溫度+濕度，可設安全範圍並顯示警示）
+- [x] P1 新增環境溫濕度紀錄（每隻守宮各自登記溫度+濕度，可設安全範圍並顯示警示）
+      前端 M4 環境分頁籤已完成：表單（量測時間/溫度/濕度/來源）、溫濕度趨勢圖（含安全範圍參考線）、超出範圍標示、未設定安全範圍時的提示
 - [ ] P1 性別欄位擴充為公/母/未知三選一
       需求書：[docs/requirements/2026-08-24-性別與下蛋紀錄.md](docs/requirements/2026-08-24-性別與下蛋紀錄.md)
 - [ ] P1 新增下蛋紀錄（日期＋蛋數＋備註，綁定守宮，不追蹤受精/孵化）
