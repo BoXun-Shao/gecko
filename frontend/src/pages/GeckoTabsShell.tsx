@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { GeckoRead } from "../api/types";
 import { GeckoOverviewTab } from "./GeckoOverviewTab";
 import { GeckoFeedingTab } from "./GeckoFeedingTab";
+import { GeckoSheddingTab } from "./GeckoSheddingTab";
 import { ComingSoonTab } from "./ComingSoonTab";
 
 const TABS = [
@@ -39,7 +40,7 @@ export function GeckoTabsShell({ geckos }: { geckos: GeckoRead[] }) {
         <GeckoFeedingTab gecko={gecko} />
       </Tabs.Panel>
       <Tabs.Panel value="shedding" pt="md">
-        <ComingSoonTab label="蛻皮" />
+        <GeckoSheddingTab gecko={gecko} />
       </Tabs.Panel>
       <Tabs.Panel value="environment" pt="md">
         <ComingSoonTab label="環境" />
