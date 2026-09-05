@@ -28,6 +28,19 @@
 - 需求書是開發依據的 source of truth；[TODO.md](TODO.md) 只是從需求書萃取出的待辦追蹤清單（勾選狀態用），細節與最終依據仍以對應的需求書為準。
 - 需求異動（含衝突後的重新確認）一律**新增**一份需求書記錄異動內容，不覆蓋或刪除舊需求書，保留完整決策歷史。
 
+## 開發前置流程：UI 設計與後端規劃
+
+在需求書確認之後、真正動手改程式之前，UI 變更與後端變更各有一道前置關卡：
+
+**前端 UI 變更（`frontend/` Mantine 元件、版面、視覺、互動設計）：**
+- 先用 `design` skill 產出一份互動式設計稿（Artifact mockup），讓使用者在畫布上調整或給意見，確認設計方向後才動手改程式碼。
+- 例外：純文字/邏輯修正（不涉及版面、視覺、互動設計判斷）不受此限，可以直接改。
+- 例外：使用者已在對話中明確給出具體的版面/視覺指示（例如指定用 sticky sidebar、指定捲動方式、指定一次顯示幾筆），等同設計確認已完成，不需要再重複出 mockup——但若指示不夠具體、還需要我做版面判斷，仍要先出 mockup。
+
+**後端變更（`backend/` FastAPI routers、SQLAlchemy models、Alembic migration）：**
+- 先呼叫 `backend-implementor` 子代理（見 `.claude/agents/backend-implementor.md`）產出實作計畫：要動的檔案、migration 內容、endpoint contract、edge case、測試計畫。
+- 計畫中列出的「待確認問題」（例如需求書沒涵蓋到的決策）要先依「需求驅動開發」規則解決，才能動手實作；不可跳過待確認問題直接寫程式。
+
 ## 開發流程
 
 **分支策略：Trunk-based。** 直接在 `main` 上開發，小步提交，不開 feature branch。

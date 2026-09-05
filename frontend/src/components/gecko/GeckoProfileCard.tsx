@@ -1,4 +1,6 @@
-import { Avatar, Badge, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import { Avatar, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import { IconBowl, IconCalendar, IconClock, IconPencil, IconTag } from "@tabler/icons-react";
+import type { Icon } from "@tabler/icons-react";
 import { assetUrl } from "../../api/client";
 import type { GeckoRead } from "../../api/types";
 
@@ -12,6 +14,21 @@ function daysBetween(from: string, to: Date): number {
   const a = new Date(`${from}T00:00:00`);
   const ms = to.getTime() - a.getTime();
   return Math.max(0, Math.floor(ms / 86400000));
+}
+
+function FactChip({ icon: ChipIcon, children }: { icon: Icon; children: React.ReactNode }) {
+  return (
+    <Group
+      gap={7}
+      wrap="nowrap"
+      style={{ backgroundColor: "#1c130d", color: "#e8d5a9", padding: "7px 14px", borderRadius: 10 }}
+    >
+      <ChipIcon size={15} stroke={1.8} />
+      <Text size="sm" fw={500}>
+        {children}
+      </Text>
+    </Group>
+  );
 }
 
 interface GeckoProfileCardProps {
@@ -33,29 +50,27 @@ export function GeckoProfileCard({ gecko, onEdit }: GeckoProfileCardProps) {
             {gecko.morph || "未填品系"}
           </Text>
           <Group gap="xs" mt={4}>
-            <Badge variant="light" color="clay">
-              {GENDER_LABEL[gecko.gender]}
-            </Badge>
-            {gecko.birth_date && (
-              <Badge variant="light" color="clay">
-                出生 {gecko.birth_date}
-              </Badge>
-            )}
+            <FactChip icon={IconTag}>{GENDER_LABEL[gecko.gender]}</FactChip>
+            {gecko.birth_date && <FactChip icon={IconCalendar}>出生 {gecko.birth_date}</FactChip>}
             {gecko.acquired_date && (
-              <Badge variant="light" color="clay">
-                飼養 {daysBetween(gecko.acquired_date, today)} 天
-              </Badge>
+              <FactChip icon={IconClock}>飼養 {daysBetween(gecko.acquired_date, today)} 天</FactChip>
             )}
-            <Badge variant="light" color="clay">
-              每 {gecko.feeding_interval_days} 天餵一次
-            </Badge>
+            <FactChip icon={IconBowl}>每 {gecko.feeding_interval_days} 天餵一次</FactChip>
           </Group>
           {gecko.note && (
             <Text size="sm" c="dimmed" mt={4}>
               {gecko.note}
             </Text>
           )}
-          <Button variant="light" color="clay" size="xs" mt="sm" onClick={onEdit} style={{ alignSelf: "flex-start" }}>
+          <Button
+            variant="light"
+            color="clay"
+            size="xs"
+            mt="sm"
+            leftSection={<IconPencil size={14} />}
+            onClick={onEdit}
+            style={{ alignSelf: "flex-start" }}
+          >
             編輯資料與照片
           </Button>
         </Stack>

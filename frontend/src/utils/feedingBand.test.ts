@@ -59,15 +59,34 @@ describe("isDueDay", () => {
 });
 
 describe("computeFeedingBand", () => {
-  it("returns exactly 60 cells ending on `today`", () => {
+  it("only shows today when there is no feeding history at all (avoids implying data that doesn't exist)", () => {
     const cells = computeFeedingBand([], "2026-08-30", 7);
-    expect(cells).toHaveLength(60);
-    expect(cells[59].date).toBe("2026-08-30");
+    expect(cells).toHaveLength(1);
+    expect(cells[0].date).toBe("2026-08-30");
+    expect(cells[0].status).toBe("off");
   });
 
-  it("marks every day as off when there is no feeding history at all", () => {
-    const cells = computeFeedingBand([], "2026-08-30", 7);
-    expect(cells.every((c) => c.status === "off")).toBe(true);
+  it("caps the window at 30 days ending on `today` once history goes back further than that", () => {
+    const logs = [makeLog({ date: "2026-01-01", status: "fed", qty: 3 })];
+    const cells = computeFeedingBand(logs, "2026-08-30", 7);
+    expect(cells).toHaveLength(30);
+    expect(cells[29].date).toBe("2026-08-30");
+    expect(cells[0].date).toBe("2026-08-01");
+  });
+
+  it("starts from the earliest logged date instead of padding empty days before it", () => {
+    const logs = [makeLog({ date: "2026-08-25", status: "fed", qty: 3 })];
+    const cells = computeFeedingBand(logs, "2026-08-30", 7);
+    expect(cells).toHaveLength(6);
+    expect(cells[0].date).toBe("2026-08-25");
+    expect(cells[5].date).toBe("2026-08-30");
+  });
+
+  it("clamps to today instead of returning an empty band when a log is dated after `today` (clock/timezone skew)", () => {
+    const logs = [makeLog({ date: "2026-09-02", status: "fed", qty: 3 })];
+    const cells = computeFeedingBand(logs, "2026-08-30", 7);
+    expect(cells.length).toBeGreaterThan(0);
+    expect(cells[cells.length - 1].date).toBe("2026-08-30");
   });
 
   it("classifies a fed day as 'fed' and carries it forward as the due-date baseline", () => {

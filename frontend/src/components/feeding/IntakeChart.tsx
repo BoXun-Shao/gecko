@@ -8,7 +8,7 @@ import { todayStr } from "../../utils/dates";
 function barColor(b: Bucket): string {
   if (b.qty > 0) return "#c98b3a";
   if (b.refused > 0) return "#c05a45";
-  if (b.skip > 0) return "#6b442c";
+  if (b.skip > 0) return "#5a3826";
   return "transparent";
 }
 
@@ -50,9 +50,11 @@ export function IntakeChart({ logs, intervalDays }: IntakeChartProps) {
         <>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={buckets} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
-              <XAxis dataKey="label" stroke="#a89279" fontSize={11} interval="preserveStartEnd" />
+              <XAxis dataKey="label" stroke="#c7b092" fontSize={11} interval="preserveStartEnd" />
               <Tooltip
-                contentStyle={{ background: "#2b1e17", border: "1px solid #4a2e1e", color: "#f2ebdc" }}
+                contentStyle={{ background: "#35251a", border: "1px solid #7c5033", color: "#f2ebdc" }}
+                itemStyle={{ color: "#f2ebdc" }}
+                labelStyle={{ color: "#f2ebdc" }}
                 formatter={(_: number, __: string, item) => {
                   const b = item.payload as Bucket;
                   return [`共 ${b.qty} 隻／進食 ${b.fed}、拒食 ${b.refused}、沒餵 ${b.skip}、排便 ${b.poop}`, ""];
@@ -79,7 +81,7 @@ export function IntakeChart({ logs, intervalDays }: IntakeChartProps) {
               </Text>
             </Group>
             <Group gap={4}>
-              <div style={{ width: 10, height: 10, borderRadius: 2, background: "#6b442c" }} />
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: "#5a3826" }} />
               <Text size="xs" c="dimmed">
                 該區間全沒餵
               </Text>

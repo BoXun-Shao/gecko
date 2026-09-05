@@ -6,20 +6,26 @@ import { todayStr } from "../../utils/dates";
 
 const CELL_STYLE: Record<BandCellStatus, CSSProperties> = {
   fed: { backgroundColor: "#e8d5a9" },
-  refused: { backgroundColor: "#6b442c" },
-  skip: { backgroundColor: "#4a2e1e" },
-  due: { backgroundColor: "transparent", border: "1px dashed #c98b3a" },
-  off: { backgroundColor: "#1c1310", border: "1px solid #4a2e1e" },
+  refused: { backgroundColor: "#7c5033" },
+  skip: { backgroundColor: "#5a3826" },
+  due: { backgroundColor: "transparent", border: "1px dashed #d9a24c" },
+  off: { backgroundColor: "#140d0a", border: "1px solid #2e1f16" },
 };
 
 const LEGEND: { color?: string; border?: string; label: string; dashed?: boolean }[] = [
   { color: "#e8d5a9", label: "有進食" },
-  { color: "#6b442c", label: "拒食" },
-  { color: "#4a2e1e", label: "沒餵" },
-  { border: "1px dashed #c98b3a", label: "排定日未記錄" },
-  { color: "#1c1310", border: "1px solid #4a2e1e", label: "非餵食日" },
+  { color: "#7c5033", label: "拒食" },
+  { color: "#5a3826", label: "沒餵" },
+  { border: "1px dashed #d9a24c", label: "排定日未記錄" },
+  { color: "#140d0a", border: "1px solid #2e1f16", label: "非餵食日" },
   { color: "#8ba05e", label: "當天排便" },
 ];
+
+// Cells flex to fill the available width down to this floor; only once a gecko's
+// history is wide enough to hit the floor on every cell does the row overflow
+// into horizontal scroll, instead of always sitting narrow with blank space beside it.
+const CELL_MIN_WIDTH = 13;
+const CELL_GAP = 4;
 
 interface FeedingBandProps {
   logs: DailyLogRead[];
@@ -31,15 +37,16 @@ export function FeedingBand({ logs, intervalDays }: FeedingBandProps) {
 
   return (
     <Box>
-      <Group gap={2} wrap="wrap">
+      <Box style={{ display: "flex", gap: CELL_GAP, overflowX: "auto" }}>
         {cells.map((cell) => (
           <Box
             key={cell.date}
             title={cell.tooltip}
             style={{
               position: "relative",
-              width: 12,
-              height: 22,
+              flex: "1 1 0",
+              minWidth: CELL_MIN_WIDTH,
+              height: 24,
               borderRadius: 2,
               ...CELL_STYLE[cell.status],
             }}
@@ -48,7 +55,7 @@ export function FeedingBand({ logs, intervalDays }: FeedingBandProps) {
               <Box
                 style={{
                   position: "absolute",
-                  bottom: 2,
+                  bottom: 3,
                   left: "50%",
                   transform: "translateX(-50%)",
                   width: 4,
@@ -60,7 +67,7 @@ export function FeedingBand({ logs, intervalDays }: FeedingBandProps) {
             )}
           </Box>
         ))}
-      </Group>
+      </Box>
       <Group gap="md" mt="sm">
         {LEGEND.map((item) => (
           <Group key={item.label} gap={4}>

@@ -31,7 +31,7 @@ export function EnvironmentTrendChart({ gecko, logs }: EnvironmentTrendChartProp
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={points} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#4a2e1e" />
-          <XAxis dataKey="label" stroke="#a89279" fontSize={11} interval="preserveStartEnd" />
+          <XAxis dataKey="label" stroke="#c7b092" fontSize={11} interval="preserveStartEnd" />
           <YAxis yAxisId="temp" stroke="#c98b3a" fontSize={12} unit="°C" width={48} domain={["auto", "auto"]} />
           <YAxis
             yAxisId="humidity"
@@ -43,7 +43,9 @@ export function EnvironmentTrendChart({ gecko, logs }: EnvironmentTrendChartProp
             domain={[0, 100]}
           />
           <Tooltip
-            contentStyle={{ background: "#2b1e17", border: "1px solid #4a2e1e", color: "#f2ebdc" }}
+            contentStyle={{ background: "#35251a", border: "1px solid #7c5033", color: "#f2ebdc" }}
+            itemStyle={{ color: "#f2ebdc" }}
+            labelStyle={{ color: "#f2ebdc" }}
             labelFormatter={(l: string) => l}
             formatter={(v: number, name: string) => [name === "temperature" ? `${v}°C` : `${v}%`, name === "temperature" ? "溫度" : "濕度"]}
           />

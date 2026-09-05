@@ -1,21 +1,35 @@
 import { SimpleGrid, Paper, Text } from "@mantine/core";
+import { IconBowl, IconCalendar, IconClock, IconDroplet, IconMeat } from "@tabler/icons-react";
+import type { Icon } from "@tabler/icons-react";
 import type { DailyLogRead } from "../../api/types";
 import { daysBetween, todayStr } from "../../utils/dates";
 import { wasFed } from "../../utils/feedingBand";
 
 interface StatTileProps {
+  icon: Icon;
   value: string | number;
   label: string;
   alert?: boolean;
+  highlight?: boolean;
 }
 
-function StatTile({ value, label, alert }: StatTileProps) {
+function StatTile({ icon: TileIcon, value, label, alert, highlight }: StatTileProps) {
   return (
-    <Paper withBorder p="sm" radius="md" style={{ textAlign: "center" }}>
-      <Text fw={700} size="lg" c={alert ? "red" : undefined}>
+    <Paper
+      withBorder
+      p="sm"
+      radius="md"
+      style={{
+        textAlign: "center",
+        backgroundColor: highlight ? "#3a2716" : undefined,
+        borderColor: highlight ? "#7c5033" : undefined,
+      }}
+    >
+      <TileIcon size={16} color={highlight ? "#e8d5a9" : "#a8886a"} stroke={1.8} style={{ marginBottom: 6 }} />
+      <Text fw={700} size="lg" c={alert ? "red" : highlight ? "sand" : undefined}>
         {value}
       </Text>
-      <Text size="xs" c="dimmed">
+      <Text size="xs" c={highlight ? undefined : "dimmed"} style={highlight ? { color: "#d9c3a3" } : undefined}>
         {label}
       </Text>
     </Paper>
@@ -49,15 +63,23 @@ export function StatsRow({ logs, intervalDays }: StatsRowProps) {
 
   return (
     <SimpleGrid cols={{ base: 2, sm: 5 }} spacing="sm">
-      <StatTile value={logs.length} label="紀錄筆數" />
-      <StatTile value={monthQty} label="本月進食總量" />
+      <StatTile icon={IconCalendar} value={logs.length} label="紀錄筆數" />
+      <StatTile icon={IconMeat} value={monthQty} label="本月進食總量" />
       <StatTile
+        icon={IconClock}
         value={fastDays === null ? "—" : fastDays}
         label="距上次進食（天）"
         alert={fastDays !== null && fastDays >= intervalDays * 2}
       />
-      <StatTile value={nextText} label={`下次餵食（每 ${intervalDays} 天）`} alert={nextAlert} />
       <StatTile
+        icon={IconBowl}
+        value={nextText}
+        label={`下次餵食（每 ${intervalDays} 天）`}
+        alert={nextAlert}
+        highlight={!nextAlert}
+      />
+      <StatTile
+        icon={IconDroplet}
         value={poopDays === null ? "—" : poopDays}
         label="距上次排便（天）"
         alert={poopDays !== null && poopDays >= intervalDays + 3}

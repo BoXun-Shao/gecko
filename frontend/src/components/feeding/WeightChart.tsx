@@ -37,10 +37,12 @@ export function WeightChart({ logs }: WeightChartProps) {
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="#4a2e1e" />
-          <XAxis dataKey="date" tickFormatter={(d: string) => d.slice(5)} stroke="#a89279" fontSize={12} />
-          <YAxis domain={["auto", "auto"]} stroke="#a89279" fontSize={12} unit="g" width={48} />
+          <XAxis dataKey="date" tickFormatter={(d: string) => d.slice(5)} stroke="#c7b092" fontSize={12} />
+          <YAxis domain={["auto", "auto"]} stroke="#c7b092" fontSize={12} unit="g" width={48} />
           <Tooltip
-            contentStyle={{ background: "#2b1e17", border: "1px solid #4a2e1e", color: "#f2ebdc" }}
+            contentStyle={{ background: "#35251a", border: "1px solid #7c5033", color: "#f2ebdc" }}
+            itemStyle={{ color: "#f2ebdc" }}
+            labelStyle={{ color: "#f2ebdc" }}
             labelFormatter={(d: string) => d}
             formatter={(v: number) => [`${v} g`, "體重"]}
           />

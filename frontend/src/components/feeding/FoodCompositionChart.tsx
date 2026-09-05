@@ -35,7 +35,9 @@ export function FoodCompositionChart({ logs }: FoodCompositionChartProps) {
           <XAxis type="number" hide domain={[0, total]} />
           <YAxis type="category" dataKey="name" hide />
           <Tooltip
-            contentStyle={{ background: "#2b1e17", border: "1px solid #4a2e1e", color: "#f2ebdc" }}
+            contentStyle={{ background: "#35251a", border: "1px solid #7c5033", color: "#f2ebdc" }}
+            itemStyle={{ color: "#f2ebdc" }}
+            labelStyle={{ color: "#f2ebdc" }}
             formatter={(value: number, name: string) => [`${value} 隻（${Math.round((value / total) * 100)}%）`, name]}
           />
           {rows.map(([food], i) => (

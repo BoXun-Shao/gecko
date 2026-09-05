@@ -17,9 +17,14 @@ interface DailyLogHistoryListProps {
   geckoName: string;
   logs: DailyLogRead[];
   onEdit: (jump: DateJump) => void;
+  /** When set, caps the visible height to roughly this many rows and makes the list scroll internally. */
+  maxVisibleRows?: number;
 }
 
-export function DailyLogHistoryList({ geckoId, geckoName, logs, onEdit }: DailyLogHistoryListProps) {
+const ROW_HEIGHT_PX = 45;
+const HEADER_HEIGHT_PX = 45;
+
+export function DailyLogHistoryList({ geckoId, geckoName, logs, onEdit, maxVisibleRows }: DailyLogHistoryListProps) {
   const deleteLog = useDeleteDailyLog(geckoId);
 
   if (!logs.length) {
@@ -40,9 +45,14 @@ export function DailyLogHistoryList({ geckoId, geckoName, logs, onEdit }: DailyL
     }
   }
 
+  const scrollHeight =
+    maxVisibleRows && logs.length > maxVisibleRows
+      ? HEADER_HEIGHT_PX + maxVisibleRows * ROW_HEIGHT_PX
+      : undefined;
+
   return (
-    <Table.ScrollContainer minWidth={600}>
-      <Table verticalSpacing="xs">
+    <Table.ScrollContainer minWidth={600} maxHeight={scrollHeight}>
+      <Table verticalSpacing="xs" stickyHeader>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>日期</Table.Th>

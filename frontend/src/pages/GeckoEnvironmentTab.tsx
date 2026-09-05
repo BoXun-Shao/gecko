@@ -23,7 +23,7 @@ export function GeckoEnvironmentTab({ gecko }: { gecko: GeckoRead }) {
   return (
     <Stack gap="lg">
       {!hasConfiguredSafeRange(gecko) && (
-        <Alert icon={<IconAlertTriangle size={18} />} color="yellow" title="尚未設定安全溫濕度範圍">
+        <Alert icon={<IconAlertTriangle size={18} />} color="clay" title="尚未設定安全溫濕度範圍">
           設定安全範圍後，超出範圍的量測會在這裡標示警示。請至{" "}
           <Anchor component="button" type="button" onClick={() => navigate(`/geckos/${gecko.id}/overview`)} c="clay">
             總覽分頁

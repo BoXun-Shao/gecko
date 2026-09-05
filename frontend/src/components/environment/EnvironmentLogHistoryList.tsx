@@ -1,5 +1,5 @@
 import { ActionIcon, Badge, Group, Table, Text } from "@mantine/core";
-import { IconPencil, IconTrash } from "@tabler/icons-react";
+import { IconAlertTriangle, IconPencil, IconTrash } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import type { EnvironmentLogRead, GeckoRead } from "../../api/types";
 import { useDeleteEnvironmentLog } from "../../hooks/useEnvironmentLogs";
@@ -59,14 +59,20 @@ export function EnvironmentLogHistoryList({ gecko, logs, onEdit }: EnvironmentLo
               <Table.Tr key={l.id}>
                 <Table.Td>{new Date(l.recorded_at).toLocaleString()}</Table.Td>
                 <Table.Td>
-                  <Text c={tempAlert ? "red" : undefined} fw={tempAlert ? 700 : undefined}>
-                    {temp}°C{tempAlert && " ⚠ 超出範圍"}
-                  </Text>
+                  <Group gap={5} wrap="nowrap">
+                    {tempAlert && <IconAlertTriangle size={13} color="#d9846f" />}
+                    <Text c={tempAlert ? "red" : undefined} fw={tempAlert ? 700 : undefined}>
+                      {temp}°C
+                    </Text>
+                  </Group>
                 </Table.Td>
                 <Table.Td>
-                  <Text c={humidityAlert ? "red" : undefined} fw={humidityAlert ? 700 : undefined}>
-                    {humidity}%{humidityAlert && " ⚠ 超出範圍"}
-                  </Text>
+                  <Group gap={5} wrap="nowrap">
+                    {humidityAlert && <IconAlertTriangle size={13} color="#d9846f" />}
+                    <Text c={humidityAlert ? "red" : undefined} fw={humidityAlert ? 700 : undefined}>
+                      {humidity}%
+                    </Text>
+                  </Group>
                 </Table.Td>
                 <Table.Td>
                   <Badge variant="light" color="clay">

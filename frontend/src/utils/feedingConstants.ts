@@ -13,4 +13,4 @@ export function sizesFor(food: string): string[] {
 }
 
 // 沿用 index.html 的 terrarium 配色
-export const FOOD_COLORS = ["#e8d5a9", "#c98b3a", "#8ba05e", "#6b442c", "#b5723f", "#7a6a52", "#9c8f6a"];
+export const FOOD_COLORS = ["#e8d5a9", "#c98b3a", "#8ba05e", "#7c5033", "#b5723f", "#9c8064", "#c7b092"];

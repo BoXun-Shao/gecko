@@ -9,6 +9,8 @@ import { DailyLogHistoryList } from "../components/feeding/DailyLogHistoryList";
 import { WeightChart } from "../components/feeding/WeightChart";
 import { IntakeChart } from "../components/feeding/IntakeChart";
 import { FoodCompositionChart } from "../components/feeding/FoodCompositionChart";
+import { computeFeedingBand } from "../utils/feedingBand";
+import { todayStr } from "../utils/dates";
 
 export function GeckoFeedingTab({ gecko }: { gecko: GeckoRead }) {
   const { data, isLoading, isError } = useDailyLogs(gecko.id);
@@ -18,6 +20,7 @@ export function GeckoFeedingTab({ gecko }: { gecko: GeckoRead }) {
   if (isError) return <Text c="red">進食紀錄載入失敗，請重新整理再試。</Text>;
 
   const logs = [...(data ?? [])].sort((a, b) => (a.date < b.date ? 1 : -1));
+  const bandDayCount = computeFeedingBand(logs, todayStr(), gecko.feeding_interval_days).length;
 
   return (
     <Stack gap="lg">
@@ -25,7 +28,7 @@ export function GeckoFeedingTab({ gecko }: { gecko: GeckoRead }) {
 
       <Paper withBorder p="md" radius="md">
         <Title order={4} mb="sm">
-          近 60 天 · {gecko.name}
+          近 {bandDayCount} 天 · {gecko.name}
         </Title>
         <FeedingBand logs={logs} intervalDays={gecko.feeding_interval_days} />
       </Paper>
@@ -59,7 +62,7 @@ export function GeckoFeedingTab({ gecko }: { gecko: GeckoRead }) {
         <Title order={4} mb="sm">
           紀錄明細
         </Title>
-        <DailyLogHistoryList geckoId={gecko.id} geckoName={gecko.name} logs={logs} onEdit={setJumpToDate} />
+        <DailyLogHistoryList geckoId={gecko.id} geckoName={gecko.name} logs={logs} onEdit={setJumpToDate} maxVisibleRows={10} />
       </div>
     </Stack>
   );
